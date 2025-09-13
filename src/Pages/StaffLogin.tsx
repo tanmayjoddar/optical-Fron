@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useDispatch } from 'react-redux';
 import { login } from '@/store/authSlice';
 import type { AppDispatch } from '@/store';
-import { useAuth } from '@/providers/AuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 type LoginFormInputs = {

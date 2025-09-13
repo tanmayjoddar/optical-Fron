@@ -1,5 +1,5 @@
 import { Button } from "./button";
-import { useAuth } from "../../providers/AuthProvider";
+import { useAuth } from "../../hooks/useAuth";
 
 function Header() {
   const { logout } = useAuth();
