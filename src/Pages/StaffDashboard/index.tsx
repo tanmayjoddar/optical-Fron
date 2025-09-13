@@ -4,6 +4,7 @@ import DashboardOverview from "./DashboardOverview";
 import PatientsList from "./Patients/PatientsList";
 import PatientCreate from "./Patients/PatientCreate";
 import PatientDetails from "./Patients/PatientDetails";
+import PatientEdit from "./Patients/PatientEdit";
 import CustomersList from "./Customers/CustomersList";
 import CustomerCreate from "./Customers/CustomerCreate";
 import CustomerDetails from "./Customers/CustomerDetails";
@@ -27,6 +28,7 @@ const StaffDashboard = () => {
         <Route path="patients" element={<PatientsList />} />
         <Route path="patients/create" element={<PatientCreate />} />
         <Route path="patients/:id" element={<PatientDetails />} />
+        <Route path="patients/:id/edit" element={<PatientEdit />} />
         
         {/* Customer Management */}
         <Route path="customers" element={<CustomersList />} />

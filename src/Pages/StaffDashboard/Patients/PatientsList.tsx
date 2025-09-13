@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 import { api } from "../../../lib/api";
+import { useAuth } from "../../../hooks/useAuth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,14 +44,21 @@ const PatientsList = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [genderFilter, setGenderFilter] = useState<string>("all");
+  const { shopId } = useAuth();
 
   // Fetch patients data
   useEffect(() => {
     const fetchPatients = async () => {
+      // Don't fetch if shopId is not available yet
+      if (!shopId) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
-        const response = await api.patients.getAll();
+        const response = await api.patients.getAll(shopId);
         setPatients(response.data || []);
       } catch (err: any) {
         setError(err.response?.data?.error || "Failed to fetch patients");
@@ -61,7 +69,7 @@ const PatientsList = () => {
     };
 
     fetchPatients();
-  }, []);
+  }, [shopId]);
 
   // Filter patients based on search term and gender
   const filteredPatients = patients.filter((patient) => {
@@ -113,7 +121,24 @@ const PatientsList = () => {
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Patients</h3>
               <p className="text-gray-500 mb-4">{error}</p>
-              <Button onClick={() => window.location.reload()}>
+              <Button onClick={() => {
+                setError(null);
+                setLoading(true);
+                // Retry fetching patients
+                const fetchPatients = async () => {
+                  try {
+                    if (shopId) {
+                      const response = await api.patients.getAll(shopId);
+                      setPatients(response.data || []);
+                    }
+                  } catch (err: any) {
+                    setError(err.response?.data?.error || "Failed to fetch patients");
+                  } finally {
+                    setLoading(false);
+                  }
+                };
+                fetchPatients();
+              }}>
                 Try Again
               </Button>
             </div>
@@ -163,9 +188,16 @@ const PatientsList = () => {
                 <option value="female">Female</option>
                 <option value="other">Other</option>
               </select>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  setSearchTerm("");
+                  setGenderFilter("all");
+                }}
+              >
                 <Filter className="h-4 w-4 mr-2" />
-                Filters
+                Clear Filters
               </Button>
             </div>
           </div>

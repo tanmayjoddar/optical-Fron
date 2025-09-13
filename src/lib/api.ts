@@ -57,8 +57,14 @@ apiClient.interceptors.response.use(
 export const api = {
   // Patient endpoints
   patients: {
-    getAll: () => apiClient.get('/api/patient'),
-    getById: (id: number) => apiClient.get(`/api/patient/${id}`),
+    getAll: (shopId?: number) => {
+      const params = shopId ? { shopId } : {};
+      return apiClient.get('/api/patient', { params });
+    },
+    getById: (id: number, shopId?: number) => {
+      const params = shopId ? { shopId } : {};
+      return apiClient.get(`/api/patient/${id}`, { params });
+    },
     create: (data: {
       name: string;
       age: number;
@@ -68,8 +74,21 @@ export const api = {
       medicalHistory?: string;
       shopId: number;
     }) => apiClient.post('/api/patient', data),
-    update: (id: number, data: any) => apiClient.put(`/api/patient/${id}`, data),
-    delete: (id: number) => apiClient.delete(`/api/patient/${id}`),
+    update: (id: number, data: {
+      name?: string;
+      age?: number;
+      gender?: string;
+      phone?: string;
+      address?: string;
+      medicalHistory?: string;
+    }, shopId?: number) => {
+      const params = shopId ? { shopId } : {};
+      return apiClient.put(`/api/patient/${id}`, data, { params });
+    },
+    delete: (id: number, shopId?: number) => {
+      const params = shopId ? { shopId } : {};
+      return apiClient.delete(`/api/patient/${id}`, { params });
+    },
   },
 
   // Customer endpoints
