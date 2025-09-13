@@ -71,8 +71,7 @@ const PatientDetails = () => {
     const fetchPatient = async () => {
       if (!id || !shopId) {
         if (!id) setError("Patient ID not found");
-        // Defer fetch until both are available
-        setLoading(false);
+        // Keep loading true until both are available
         return;
       }
 

@@ -39,7 +39,7 @@ const PatientEdit = () => {
     const fetchPatient = async () => {
       if (!id || !shopId) {
         if (!id) setError("Patient ID is required");
-        setLoading(false);
+        // Keep loading true until both are available
         return;
       }
 
