@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
@@ -79,9 +79,9 @@ function GrowthBarChart({ data, period }: { data: GrowthData[]; period: string }
     );
   }
 
-  const maxSales = Math.max(...data.map(d => d.sales));
-  const maxOrders = Math.max(...data.map(d => d.orders));
-  const maxPatients = Math.max(...data.map(d => d.patients));
+  const maxSales = Math.max(...data.map(d => d.sales)) || 1;
+  const maxOrders = Math.max(...data.map(d => d.orders)) || 1;
+  const maxPatients = Math.max(...data.map(d => d.patients)) || 1;
 
   return (
     <div className="space-y-4">

@@ -72,7 +72,7 @@ function getActivityColor(type: string) {
   }
 }
 
-function ActivityItem({ activity, index }: { activity: Activity; index: number }) {
+function ActivityItem({ activity }: { activity: Activity }) {
   const Icon = getActivityIcon(activity.type);
   const colorClass = getActivityColor(activity.type);
   const timeAgo = new Date(activity.timestamp).toLocaleString();
@@ -328,7 +328,7 @@ export default function RecentActivities() {
               <div className="space-y-0">
                 {paginated.map((activity, idx) => (
                   <div key={idx}>
-                    <ActivityItem activity={activity} index={idx} />
+                    <ActivityItem activity={activity} />
                     {idx < paginated.length - 1 && <Separator className="my-4" />}
                   </div>
                 ))}

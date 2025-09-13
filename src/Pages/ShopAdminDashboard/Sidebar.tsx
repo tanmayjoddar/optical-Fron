@@ -3,7 +3,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
   TrendingUp, 
