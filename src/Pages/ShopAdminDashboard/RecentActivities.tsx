@@ -144,7 +144,7 @@ export default function RecentActivities() {
     setLoading(true);
     try {
       const response = await axios.get(
-        "https://staff-optical-production.up.railway.app/shop-admin/dashboard/activities",
+  "https://staff-production-c6d9.up.railway.app/shop-admin/dashboard/activities",
         {
           headers: {
             "Authorization": `Bearer ${localStorage.getItem("jwt")}`,

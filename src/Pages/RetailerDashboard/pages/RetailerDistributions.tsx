@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -9,7 +9,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 export default function RetailerDistributions() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [list, setList] = useState<any>({ distributions: [], pagination: null, summary: null });
+  type DistributionRow = {
+    id: number;
+    shop?: { name?: string } | null;
+    retailerProduct?: { product?: { name?: string } | null } | null;
+    quantity?: number;
+    totalAmount?: number;
+    deliveryStatus?: string;
+    paymentStatus?: string;
+  };
+  const [list, setList] = useState<{ distributions: DistributionRow[]; pagination?: unknown; summary?: unknown }>({ distributions: [], pagination: null, summary: null });
   const [deliveryForm, setDeliveryForm] = useState<{ status: string; date?: string; tracking?: string }>({ status: "DELIVERED" });
   const [paymentForm, setPaymentForm] = useState<{ status: string; date?: string }>({ status: "PAID" });
   const [filters, setFilters] = useState<{ shopId?: string; deliveryStatus?: string; paymentStatus?: string }>({});
@@ -25,18 +34,21 @@ export default function RetailerDistributions() {
         deliveryStatus: filters.deliveryStatus || undefined,
         paymentStatus: filters.paymentStatus || undefined,
       });
-      setList(data || { distributions: [] });
+      setList((data as { distributions: DistributionRow[] }) || { distributions: [] });
       setPage(p);
-    } catch (e: any) {
-      setError(e.message || "Failed to load distributions");
+    } catch (e) {
+      const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
+      setError(message || "Failed to load distributions");
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchRef = useRef(fetchData);
+  useEffect(() => { fetchRef.current = fetchData; });
   useEffect(() => {
     let mounted = true;
-    (async () => { if (mounted) await fetchData(1); })();
+    (async () => { if (mounted) await fetchRef.current(1); })();
     return () => { mounted = false; };
   }, []);
 
@@ -95,7 +107,7 @@ export default function RetailerDistributions() {
                 </tr>
               </thead>
               <tbody>
-                {(list?.distributions ?? []).map((d: any) => (
+                {(list?.distributions ?? []).map((d: DistributionRow) => (
                   <tr key={d.id} className="border-t">
                     <td className="py-2 pr-4">{d.shop?.name}</td>
                     <td className="py-2 pr-4">{d.retailerProduct?.product?.name}</td>
@@ -129,8 +141,10 @@ export default function RetailerDistributions() {
                                         trackingNumber: deliveryForm.tracking || undefined,
                                       });
                                       const refreshed = await RetailerAPI.distributions({ page: 1, limit: 20 });
-                                      setList(refreshed);
-                                    } catch (e) {}
+                                      setList(refreshed as { distributions: DistributionRow[] });
+                                    } catch {
+                                      // silently ignore and keep dialog open
+                                    }
                                   }}
                                 >Save</Button>
                               </div>
@@ -159,8 +173,10 @@ export default function RetailerDistributions() {
                                         paidDate: paymentForm.date ? new Date(paymentForm.date).toISOString() : undefined,
                                       });
                                       const refreshed = await RetailerAPI.distributions({ page: 1, limit: 20 });
-                                      setList(refreshed);
-                                    } catch (e) {}
+                                      setList(refreshed as { distributions: DistributionRow[] });
+                                    } catch {
+                                      // silently ignore and keep dialog open
+                                    }
                                   }}
                                 >Save</Button>
                               </div>

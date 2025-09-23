@@ -7,9 +7,9 @@ import { StaffAPI } from "@/lib/staffApi";
 
 const PrescriptionCreate = () => {
   const [patientId, setPatientId] = useState<string>("");
-  const [right, setRight] = useState({ sph: "", cyl: "", axis: "", add: "" });
-  const [left, setLeft] = useState({ sph: "", cyl: "", axis: "", add: "" });
-  const [result, setResult] = useState<any | null>(null);
+  const [right, setRight] = useState<{ sph: string; cyl: string; axis: string; add: string }>({ sph: "", cyl: "", axis: "", add: "" });
+  const [left, setLeft] = useState<{ sph: string; cyl: string; axis: string; add: string }>({ sph: "", cyl: "", axis: "", add: "" });
+  const [result, setResult] = useState<unknown | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +19,10 @@ const PrescriptionCreate = () => {
       setLoading(true); setError(null);
       const res = await StaffAPI.createPrescription({ patientId: Number(patientId), rightEye: right, leftEye: left });
       setResult(res);
-    } catch (e: any) { setError(e.message || "Create failed"); }
+    } catch (e) {
+      const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
+      setError(message || "Create failed");
+    }
     finally { setLoading(false); }
   };
 
@@ -63,9 +66,9 @@ const PrescriptionCreate = () => {
           <div className="flex justify-end">
             <Button onClick={submit} disabled={loading}>Create Prescription</Button>
           </div>
-          {result && (
+          {result != null && (
             <div className="text-sm mt-4">
-              <pre className="bg-muted/50 p-3 rounded-lg overflow-auto max-h-80">{JSON.stringify(result, null, 2)}</pre>
+              <pre className="bg-muted/50 p-3 rounded-lg overflow-auto max-h-80">{typeof result === "string" ? result : JSON.stringify(result as Record<string, unknown>, null, 2)}</pre>
             </div>
           )}
         </CardContent>

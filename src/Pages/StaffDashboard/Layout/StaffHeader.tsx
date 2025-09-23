@@ -21,8 +21,8 @@ interface StaffHeaderProps {
 
 const StaffHeader = ({ onMenuClick }: StaffHeaderProps) => {
   const dispatch = useDispatch();
-  const { user } = useAuth();
-  const [notifications] = useState(3); // Mock notification count
+  const { user } = useAuth() as { user: { name?: string; email?: string } | null };
+  const [notifications] = useState(0);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -83,7 +83,7 @@ const StaffHeader = ({ onMenuClick }: StaffHeaderProps) => {
         <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:text-primary">
                 <Avatar className="h-8 w-8">
           <AvatarFallback className="bg-app-gradient text-white">
-                    {user?.name ? getUserInitials(user.name) : 'ST'}
+                    {user?.name ? getUserInitials(user.name) : ''}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -92,10 +92,10 @@ const StaffHeader = ({ onMenuClick }: StaffHeaderProps) => {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {user?.name || 'Staff Member'}
+                    {user?.name ?? ''}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user?.email || 'staff@opticalshop.com'}
+                    {user?.email ?? ''}
                   </p>
                 </div>
               </DropdownMenuLabel>

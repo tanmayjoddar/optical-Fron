@@ -3,13 +3,22 @@ import axios from "axios";
 import Pagination from "../Pagination/Pagination";
 import { Card } from "@/components/ui/card";
 
+type InventorySummaryItem = {
+  product: { id: number; name: string; sku: string; category: string };
+  type: string;
+  totalQuantity: number;
+  movements: Array<{ id: number; quantity: number; notes: string; date: string }>;
+};
+type InventoryDetailItem = { id: number; productId: number; type: string; quantity: number; notes: string; createdAt: string };
+type InventoryResponse = { summary: InventorySummaryItem[]; details: InventoryDetailItem[] };
+
 export default function InventoryReport() {
-  const [inventory, setInventory] = useState<any>(null);
+  const [inventory, setInventory] = useState<InventoryResponse | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
   useEffect(() => {
-    axios.get("https://staff-optical-production.up.railway.app/shop-admin/reports/inventory?type=all&startDate=2025-09-01&endDate=2025-09-30", {
+    axios.get("https://staff-production-c6d9.up.railway.app/shop-admin/reports/inventory?type=all&startDate=2025-09-01&endDate=2025-09-30", {
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
         "Content-Type": "application/json"
@@ -38,7 +47,7 @@ export default function InventoryReport() {
             </tr>
           </thead>
           <tbody>
-            {paginated.map((item: any) => (
+            {paginated.map((item: InventorySummaryItem) => (
               <tr key={item.product.id} className="border-b">
                 <td>{item.product.name}</td>
                 <td>{item.product.sku}</td>
@@ -46,7 +55,7 @@ export default function InventoryReport() {
                 <td>{item.type}</td>
                 <td>{item.totalQuantity}</td>
                 <td>
-                  {item.movements.map((move: any) => (
+                  {item.movements.map((move) => (
                     <div key={move.id} className="text-xs">
                       {move.quantity} ({move.notes}) on {new Date(move.date).toLocaleDateString()}
                     </div>
@@ -72,7 +81,7 @@ export default function InventoryReport() {
             </tr>
           </thead>
           <tbody>
-            {inventory.details.map((detail: any) => (
+            {inventory.details.map((detail: InventoryDetailItem) => (
               <tr key={detail.id} className="border-b">
                 <td>{detail.id}</td>
                 <td>{detail.productId}</td>

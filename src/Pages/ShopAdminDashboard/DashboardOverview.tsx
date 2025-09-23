@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType, type SVGProps } from "react";
 import axios from "axios";
 import { 
   DollarSign, 
@@ -47,7 +47,7 @@ function MetricCard({
   title: string;
   value: string | number;
   description: string;
-  icon: any;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
   trend?: "up" | "down" | "neutral";
   trendValue?: number;
   className?: string;
@@ -112,8 +112,8 @@ export default function DashboardOverview() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("https://staff-optical-production.up.railway.app/shop-admin/dashboard/metrics", {
-      headers: {
+    axios.get("https://staff-production-c6d9.up.railway.app/shop-admin/dashboard/metrics", {
+        headers: { 
         "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
         "Content-Type": "application/json"
       }

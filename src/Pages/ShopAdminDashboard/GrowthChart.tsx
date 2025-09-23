@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType, type SVGProps } from "react";
 import axios from "axios";
 import { 
   TrendingUp, 
@@ -33,7 +33,7 @@ function GrowthMetricCard({
   title: string;
   current: number;
   previous: number;
-  icon: any;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
   formatter?: (value: number) => string;
 }) {
   const growth = previous > 0 ? ((current - previous) / previous) * 100 : 0;
@@ -207,7 +207,7 @@ export default function GrowthChart() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://staff-optical-production.up.railway.app/shop-admin/dashboard/growth?period=${selectedPeriod}`,
+  `https://staff-production-c6d9.up.railway.app/shop-admin/dashboard/growth?period=${selectedPeriod}`,
         {
           headers: {
             "Authorization": `Bearer ${localStorage.getItem("jwt")}`,

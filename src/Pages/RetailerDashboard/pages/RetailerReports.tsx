@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 export default function RetailerReports() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [reports, setReports] = useState<any>({ reports: [], pagination: null });
+  type ReportRow = { id: number; type?: string; generatedAt: string; summary?: { totalRevenue?: number } | null }
+  const [reports, setReports] = useState<{ reports: ReportRow[]; pagination?: unknown }>({ reports: [], pagination: null });
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -20,9 +21,10 @@ export default function RetailerReports() {
         setLoading(true);
         const data = await RetailerAPI.reports({ page: 1, limit: 10 });
         if (!mounted) return;
-        setReports(data || { reports: [] });
-      } catch (e: any) {
-        setError(e.message || "Failed to load reports");
+        setReports((data as { reports: ReportRow[] }) || { reports: [] });
+      } catch (e) {
+        const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
+        setError(message || "Failed to load reports");
       } finally {
         setLoading(false);
       }
@@ -71,8 +73,10 @@ export default function RetailerReports() {
                 if (!startDate || !endDate) return;
                 try { await RetailerAPI.profitLoss({ startDate, endDate, format: 'json' });
                   const data = await RetailerAPI.reports({ page: 1, limit: 10 });
-                  setReports(data);
-                } catch (e) {}
+                  setReports((data as { reports: ReportRow[] }) || { reports: [] });
+                } catch {
+                  // ignore transient errors
+                }
               }}
             >Profit & Loss</Button>
             <Button
@@ -81,8 +85,10 @@ export default function RetailerReports() {
                 if (!startDate || !endDate) return;
                 try { await RetailerAPI.taxReport({ startDate, endDate, format: 'json' });
                   const data = await RetailerAPI.reports({ page: 1, limit: 10 });
-                  setReports(data);
-                } catch (e) {}
+                  setReports((data as { reports: ReportRow[] }) || { reports: [] });
+                } catch {
+                  // ignore transient errors
+                }
               }}
             >Tax Report</Button>
             <Button
@@ -90,8 +96,10 @@ export default function RetailerReports() {
               onClick={async () => {
                 try { await RetailerAPI.stockValuation();
                   const data = await RetailerAPI.reports({ page: 1, limit: 10 });
-                  setReports(data);
-                } catch (e) {}
+                  setReports((data as { reports: ReportRow[] }) || { reports: [] });
+                } catch {
+                  // ignore transient errors
+                }
               }}
             >Stock Valuation</Button>
           </div>
@@ -114,7 +122,7 @@ export default function RetailerReports() {
                 </tr>
               </thead>
               <tbody>
-                {(reports?.reports ?? []).map((r: any) => (
+                {(reports?.reports ?? []).map((r: ReportRow) => (
                   <tr key={r.id} className="border-t">
                     <td className="py-2 pr-4">{r.type}</td>
                     <td className="py-2 pr-4">{new Date(r.generatedAt).toLocaleString()}</td>
@@ -124,8 +132,10 @@ export default function RetailerReports() {
                         try {
                           await RetailerAPI.deleteReport(r.id);
                           const data = await RetailerAPI.reports({ page: 1, limit: 10 });
-                          setReports(data);
-                        } catch (e) {}
+                          setReports((data as { reports: ReportRow[] }) || { reports: [] });
+                        } catch {
+                          // ignore transient errors
+                        }
                       }}>Delete</Button>
                     </td>
                   </tr>

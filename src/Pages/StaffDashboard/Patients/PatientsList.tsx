@@ -60,8 +60,16 @@ const PatientsList = () => {
         setError(null);
         const response = await api.patients.getAll(shopId);
         setPatients(response.data || []);
-      } catch (err: any) {
-        setError(err.response?.data?.error || "Failed to fetch patients");
+      } catch (err) {
+        const message = (() => {
+          if (typeof err === "object" && err && "response" in err) {
+            const resp = (err as { response?: { data?: unknown } }).response;
+            const data = resp?.data as { error?: string; message?: string } | undefined;
+            return data?.error || data?.message;
+          }
+          return undefined;
+        })();
+        setError(message || "Failed to fetch patients");
         console.error("Error fetching patients:", err);
       } finally {
         setLoading(false);
@@ -131,8 +139,16 @@ const PatientsList = () => {
                       const response = await api.patients.getAll(shopId);
                       setPatients(response.data || []);
                     }
-                  } catch (err: any) {
-                    setError(err.response?.data?.error || "Failed to fetch patients");
+                  } catch (err) {
+                    const message = (() => {
+                      if (typeof err === "object" && err && "response" in err) {
+                        const resp = (err as { response?: { data?: unknown } }).response;
+                        const data = resp?.data as { error?: string; message?: string } | undefined;
+                        return data?.error || data?.message;
+                      }
+                      return undefined;
+                    })();
+                    setError(message || "Failed to fetch patients");
                   } finally {
                     setLoading(false);
                   }

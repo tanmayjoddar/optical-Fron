@@ -59,8 +59,16 @@ const PatientDetails = () => {
         replace: true,
         state: { message: `${patient.name} has been deleted successfully.` }
       });
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Failed to delete patient");
+    } catch (err) {
+      const message = (() => {
+        if (typeof err === "object" && err && "response" in err) {
+          const resp = (err as { response?: { data?: unknown } }).response;
+          const data = resp?.data as { error?: string; message?: string } | undefined;
+          return data?.error || data?.message;
+        }
+        return undefined;
+      })();
+      alert(message || "Failed to delete patient");
       console.error("Error deleting patient:", err);
     } finally {
       setDeleting(false);
@@ -80,8 +88,16 @@ const PatientDetails = () => {
         setError(null);
         const response = await api.patients.getById(parseInt(id), shopId);
         setPatient(response.data);
-      } catch (err: any) {
-        setError(err.response?.data?.error || "Failed to fetch patient details");
+      } catch (err) {
+        const message = (() => {
+          if (typeof err === "object" && err && "response" in err) {
+            const resp = (err as { response?: { data?: unknown } }).response;
+            const data = resp?.data as { error?: string; message?: string } | undefined;
+            return data?.error || data?.message;
+          }
+          return undefined;
+        })();
+        setError(message || "Failed to fetch patient details");
         console.error("Error fetching patient:", err);
       } finally {
         setLoading(false);

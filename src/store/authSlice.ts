@@ -48,9 +48,9 @@ export const login = createAsyncThunk(
     { rejectWithValue }
   ) => {
     let url = '';
-    if (type === 'staff') url = 'https://staff-optical-production.up.railway.app/api/auth/login/';
-    if (type === 'shopAdmin') url = 'https://staff-optical-production.up.railway.app/shop-admin/auth/login';
-    if (type === 'retailer') url = 'https://staff-optical-production.up.railway.app/retailer/auth/login';
+  if (type === 'staff') url = 'https://staff-production-c6d9.up.railway.app/api/auth/login/';
+  if (type === 'shopAdmin') url = 'https://staff-production-c6d9.up.railway.app/shop-admin/auth/login';
+  if (type === 'retailer') url = 'https://staff-production-c6d9.up.railway.app/retailer/auth/login';
     
     try {
       const response = await axios.post(url, { email, password }, {

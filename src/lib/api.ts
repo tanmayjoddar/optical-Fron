@@ -4,7 +4,7 @@ import { logout } from '../store/authSlice';
 
 // Create axios instance with base configuration
 const apiClient = axios.create({
-  baseURL: 'https://staff-optical-production.up.railway.app',
+  baseURL: 'https://staff-production-c6d9.up.railway.app',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -163,19 +163,58 @@ export const api = {
     }) => apiClient.post('/api/inventory/stock-out-by-barcode', data),
     getProductByBarcode: (barcode: string) => 
       apiClient.get(`/api/inventory/product/barcode/${barcode}`),
-    updateProduct: (productId: number, data: any) => 
-      apiClient.put(`/api/inventory/product/${productId}`, data),
+    updateProduct: (
+      productId: number,
+      data: Partial<{
+        name: string;
+        description?: string;
+        barcode?: string;
+        sku?: string;
+        basePrice: number;
+        eyewearType: 'GLASSES' | 'SUNGLASSES' | 'LENSES';
+        frameType?: string;
+        companyId: number;
+        material?: string;
+        color?: string;
+        size?: string;
+        model?: string;
+      }>
+    ) => apiClient.put(`/api/inventory/product/${productId}`, data),
   },
 
   // Invoice endpoints
   invoices: {
     getAll: () => apiClient.get('/api/invoice'),
     getById: (id: number) => apiClient.get(`/api/invoice/${id}`),
-    create: (data: any) => apiClient.post('/api/invoice', data),
+    create: (data: {
+      customerId: number;
+      items: Array<{
+        productId: number;
+        quantity: number;
+        unitPrice: number;
+        discount?: number;
+        taxRate?: number;
+      }>;
+      subtotal: number;
+      totalAmount: number;
+      cgst?: number;
+      sgst?: number;
+      notes?: string;
+      shopId?: number;
+      paymentMethod?: string;
+    }) => apiClient.post('/api/invoice', data),
     updateStatus: (id: number, status: string) => 
       apiClient.patch(`/api/invoice/${id}/status`, { status }),
-    addPayment: (id: number, data: any) => 
-      apiClient.post(`/api/invoice/${id}/payment`, data),
+    addPayment: (
+      id: number,
+      data: {
+        amount: number;
+        method: 'CASH' | 'CARD' | 'UPI' | 'BANK_TRANSFER' | string;
+        reference?: string;
+        date?: string;
+        notes?: string;
+      }
+    ) => apiClient.post(`/api/invoice/${id}/payment`, data),
     delete: (id: number) => apiClient.delete(`/api/invoice/${id}`),
     getPdf: (id: number) => apiClient.get(`/api/invoice/${id}/pdf`),
   },
@@ -184,7 +223,22 @@ export const api = {
   prescriptions: {
     getAll: () => apiClient.get('/api/prescription'),
     getById: (id: number) => apiClient.get(`/api/prescription/${id}`),
-    create: (data: any) => apiClient.post('/api/prescription', data),
+    create: (data: {
+      patientId: number;
+      sphereLeft?: number;
+      sphereRight?: number;
+      cylinderLeft?: number;
+      cylinderRight?: number;
+      axisLeft?: number;
+      axisRight?: number;
+      addLeft?: number;
+      addRight?: number;
+      pupilDistance?: number;
+      notes?: string;
+      shopId?: number;
+      doctor?: string;
+      date?: string;
+    }) => apiClient.post('/api/prescription', data),
     getPdf: (id: number) => apiClient.get(`/api/prescription/${id}/pdf`),
     getThermal: (id: number) => apiClient.get(`/api/prescription/${id}/thermal`),
   },

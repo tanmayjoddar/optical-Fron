@@ -7,23 +7,27 @@ import { RetailerAPI } from "@/lib/retailerApi";
 export default function RetailerShops() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [shops, setShops] = useState<any[]>([]);
-  const [performance, setPerformance] = useState<any | null>(null);
+  type ShopStats = { totalDistributions?: number; pendingPayments?: number; totalQuantityDistributed?: number; totalAmountDistributed?: number }
+  type ShopRow = { id: number; shop?: { name?: string; address?: string } | null; stats?: ShopStats | null }
+  type Performance = { totalShops?: number; topPerformingShop?: { name?: string; revenue?: number } | null; averageRevenuePerShop?: number }
+  const [shops, setShops] = useState<ShopRow[]>([]);
+  const [performance, setPerformance] = useState<Performance | null>(null);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
         setLoading(true);
-        const [data, perf] = await Promise.all([
+        const [data, perf]: [ShopRow[], Performance] = await Promise.all([
           RetailerAPI.shops(),
           RetailerAPI.shopPerformance({ period: 'month' }),
         ]);
         if (!mounted) return;
         setShops(data || []);
         setPerformance(perf || null);
-      } catch (e: any) {
-        setError(e.message || "Failed to load shops");
+      } catch (e) {
+        const message = typeof e === 'object' && e && 'message' in e ? String((e as { message?: unknown }).message) : undefined;
+        setError(message || "Failed to load shops");
       } finally {
         setLoading(false);
       }
@@ -88,7 +92,7 @@ export default function RetailerShops() {
       )}
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {shops.map((rs: any) => (
+  {shops.map((rs: ShopRow) => (
           <Card key={rs.id} className="glass-card">
             <CardHeader>
               <CardTitle className="text-base">{rs.shop?.name}</CardTitle>

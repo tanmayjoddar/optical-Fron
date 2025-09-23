@@ -6,26 +6,40 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TrendingUp, Package, Store, ChartColumn } from "lucide-react";
 import { RetailerAPI } from "@/lib/retailerApi";
 
+type TopProduct = { product?: { name?: string; company?: { name?: string } } | null; soldQuantity?: number; revenue?: number }
+type SalesByShop = { shop?: { name?: string } | null; revenue?: number; quantity?: number; orderCount?: number }
+type OverviewData = {
+  salesSummary?: {
+    today?: { totalSales?: number; orderCount?: number };
+    thisMonth?: { totalSales?: number; orderCount?: number };
+  };
+  inventoryStatus?: { totalStock?: number; totalProducts?: number };
+  monthlyOverview?: { activeShops?: number; distributionCount?: number };
+  topProducts?: TopProduct[];
+}
+type SalesData = { salesByShop?: SalesByShop[] }
+
 export default function RetailerOverview() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [overview, setOverview] = useState<any>(null);
-  const [sales, setSales] = useState<any>(null);
+  const [overview, setOverview] = useState<OverviewData | null>(null);
+  const [sales, setSales] = useState<SalesData | null>(null);
 
   useEffect(() => {
     let mounted = true;
     const run = async () => {
       try {
         setLoading(true);
-        const [ov, sa] = await Promise.all([
+        const [ov, sa]: [OverviewData, SalesData] = await Promise.all([
           RetailerAPI.overview(),
           RetailerAPI.salesAnalytics({ period: "month" }),
         ]);
         if (!mounted) return;
         setOverview(ov);
         setSales(sa);
-      } catch (e: any) {
-        setError(e.message || "Failed to load dashboard");
+      } catch (e) {
+        const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
+        setError(message || "Failed to load dashboard");
       } finally {
         setLoading(false);
       }
@@ -135,7 +149,7 @@ export default function RetailerOverview() {
                     </tr>
                   </thead>
                   <tbody>
-                    {overview?.topProducts?.map((tp: any, idx: number) => (
+                    {overview?.topProducts?.map((tp: TopProduct, idx: number) => (
                       <tr key={idx} className="border-t">
                         <td className="py-2 pr-4">{tp.product?.name}</td>
                         <td className="py-2 pr-4">{tp.product?.company?.name}</td>
@@ -166,7 +180,7 @@ export default function RetailerOverview() {
                     </tr>
                   </thead>
                   <tbody>
-                    {sales?.salesByShop?.map((s: any, idx: number) => (
+                    {sales?.salesByShop?.map((s: SalesByShop, idx: number) => (
                       <tr key={idx} className="border-t">
                         <td className="py-2 pr-4">{s.shop?.name}</td>
                         <td className="py-2 pr-4">₹{s.revenue?.toLocaleString?.()}</td>

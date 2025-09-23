@@ -8,7 +8,15 @@ import { RetailerAPI } from "@/lib/retailerApi";
 export default function RetailerProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [profile, setProfile] = useState<any>({});
+  type Profile = {
+    name?: string;
+    phone?: string;
+    address?: string;
+    companyName?: string;
+    gstNo?: string;
+    licenseNo?: string;
+  };
+  const [profile, setProfile] = useState<Profile>({});
   const [pwd, setPwd] = useState({ currentPassword: "", newPassword: "" });
 
   useEffect(() => {
@@ -19,8 +27,9 @@ export default function RetailerProfile() {
         const data = await RetailerAPI.getProfile();
         if (!mounted) return;
         setProfile(data || {});
-      } catch (e: any) {
-        setError(e.message || "Failed to load profile");
+      } catch (e) {
+        const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
+        setError(message || "Failed to load profile");
       } finally {
         setLoading(false);
       }
@@ -34,8 +43,9 @@ export default function RetailerProfile() {
       const { name, companyName, phone, address, gstNo, licenseNo } = profile;
       const updated = await RetailerAPI.updateProfile({ name, companyName, phone, address, gstNo, licenseNo });
       setProfile(updated);
-    } catch (e: any) {
-      setError(e.message || "Failed to update profile");
+    } catch (e) {
+      const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
+      setError(message || "Failed to update profile");
     }
   };
 
@@ -45,8 +55,9 @@ export default function RetailerProfile() {
       setError(null);
       await RetailerAPI.changePassword(pwd);
       setPwd({ currentPassword: "", newPassword: "" });
-    } catch (e: any) {
-      setError(e.message || "Failed to change password");
+    } catch (e) {
+      const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
+      setError(message || "Failed to change password");
     }
   };
 

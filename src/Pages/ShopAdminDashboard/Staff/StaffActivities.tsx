@@ -4,15 +4,23 @@ import { useParams } from "react-router";
 import Pagination from "../Pagination/Pagination";
 import { Card } from "@/components/ui/card";
 
+type StaffActivity = {
+  id?: number;
+  type: string;
+  description: string;
+  amount?: number;
+  timestamp: string;
+};
+
 export default function StaffActivities() {
   const { staffId } = useParams();
-  const [activities, setActivities] = useState<any[]>([]);
+  const [activities, setActivities] = useState<StaffActivity[]>([]);
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
   useEffect(() => {
     if (!staffId) return;
-    axios.get(`https://staff-optical-production.up.railway.app/shop-admin/staff/activities?staffId=${staffId}&startDate=2025-09-01&endDate=2025-09-30`, {
+    axios.get(`https://staff-production-c6d9.up.railway.app/shop-admin/staff/activities?staffId=${staffId}&startDate=2025-09-01&endDate=2025-09-30`, {
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
         "Content-Type": "application/json"
@@ -37,7 +45,7 @@ export default function StaffActivities() {
             </tr>
           </thead>
           <tbody>
-            {paginated.map((act: any, idx: number) => (
+            {paginated.map((act: StaffActivity, idx: number) => (
               <tr key={idx} className="border-b">
                 <td>{act.type}</td>
                 <td>{act.description}</td>

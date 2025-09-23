@@ -17,13 +17,22 @@ import {
   Calendar,
   ShoppingCart
 } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
 
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
 }
 
-const navItems = [
+type NavItem = {
+  label: string;
+  to: string;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+  description: string;
+  badge?: string;
+};
+type NavSection = { category: string; items: NavItem[] };
+const navItems: Array<NavItem | NavSection> = [
   { 
     label: "Overview", 
     to: "/shop-admin-dashboard", 
@@ -104,7 +113,7 @@ function SidebarContent() {
     return location.pathname === to || location.pathname.startsWith(to + "/");
   };
 
-  const renderNavItem = (item: any) => {
+  const renderNavItem = (item: NavItem) => {
     const Icon = item.icon;
     const isActive = isActiveLink(item.to);
     
@@ -152,7 +161,7 @@ function SidebarContent() {
       <ScrollArea className="flex-1 px-4">
         <div className="space-y-6">
           {navItems.map((section, index) => {
-            if ('items' in section && section.items) {
+            if ('items' in section) {
               return (
                 <div key={index}>
                   <div className="px-3 py-2">

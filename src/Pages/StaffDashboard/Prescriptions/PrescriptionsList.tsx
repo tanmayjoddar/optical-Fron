@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,20 +11,24 @@ import { StaffAPI } from "@/lib/staffApi";
 const PrescriptionsList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [list, setList] = useState<any>({ prescriptions: [], total: 0, page: 1 });
+  interface PrescriptionRow { id: number; patientId?: number; patient?: { name?: string } | null; createdAt: string }
+  const [list, setList] = useState<{ prescriptions: PrescriptionRow[]; total?: number; page?: number }>({ prescriptions: [], total: 0, page: 1 });
   const [patientId, setPatientId] = useState<string>("");
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const res = await StaffAPI.listPrescriptions({ page: 1, limit: 10, patientId: patientId ? Number(patientId) : undefined });
-      setList(res || { prescriptions: [] });
-    } catch (e: any) {
-      setError(e.message || "Failed to load");
+      setList((res as { prescriptions: PrescriptionRow[]; total?: number; page?: number }) || { prescriptions: [] });
+    } catch (e) {
+      const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
+      setError(message || "Failed to load");
     } finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  const fetchRef = useRef(fetchData);
+  useEffect(() => { fetchRef.current = fetchData; });
+  useEffect(() => { fetchRef.current(); }, []);
 
   return (
     <div className="space-y-6">
@@ -64,7 +68,7 @@ const PrescriptionsList = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {(list.prescriptions ?? []).map((p: any) => (
+                  {(list.prescriptions ?? []).map((p: PrescriptionRow) => (
                     <tr key={p.id} className="border-t">
                       <td className="py-2 pr-4">{p.id}</td>
                       <td className="py-2 pr-4">{p.patient?.name || p.patientId}</td>

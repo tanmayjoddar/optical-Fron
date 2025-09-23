@@ -3,13 +3,18 @@ import axios from "axios";
 import Pagination from "../Pagination/Pagination";
 import { Card } from "@/components/ui/card";
 
+type Visit = {
+  id: number; visitDate: string; purpose: string; notes: string;
+  patient: { name: string; age: number; phone: string }
+};
+
 export default function PatientVisitHistory() {
-  const [visits, setVisits] = useState<any[]>([]);
+  const [visits, setVisits] = useState<Visit[]>([]);
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
   useEffect(() => {
-    axios.get("https://staff-optical-production.up.railway.app/shop-admin/reports/patients/visits?patientId=1&startDate=2025-09-01&endDate=2025-09-30", {
+    axios.get("https://staff-production-c6d9.up.railway.app/shop-admin/reports/patients/visits?patientId=1&startDate=2025-09-01&endDate=2025-09-30", {
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
         "Content-Type": "application/json"
@@ -36,7 +41,7 @@ export default function PatientVisitHistory() {
             </tr>
           </thead>
           <tbody>
-            {paginated.map((visit: any) => (
+            {paginated.map((visit: Visit) => (
               <tr key={visit.id} className="border-b">
                 <td>{new Date(visit.visitDate).toLocaleDateString()}</td>
                 <td>{visit.purpose}</td>

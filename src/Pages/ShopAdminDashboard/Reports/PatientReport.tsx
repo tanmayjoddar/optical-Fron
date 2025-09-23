@@ -3,13 +3,20 @@ import axios from "axios";
 import Pagination from "../Pagination/Pagination";
 import { Card } from "@/components/ui/card";
 
+type PatientSummary = { totalPatients: number; newPatients: number; totalVisits: number; avgSpendPerPatient: number };
+type Patient = {
+  id: number; name: string; age: number; gender: string; phone: string;
+  registrationDate: string; totalSpent: number; totalOrders: number; totalPrescriptions: number; lastVisit: string
+};
+type PatientReportResponse = { summary: PatientSummary; patients: Patient[] };
+
 export default function PatientReport() {
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState<PatientReportResponse | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
   useEffect(() => {
-    axios.get("https://staff-optical-production.up.railway.app/shop-admin/reports/patients?type=active&startDate=2025-09-01&endDate=2025-09-30", {
+      axios.get("https://staff-production-c6d9.up.railway.app/shop-admin/reports/patients?type=active&startDate=2025-09-01&endDate=2025-09-30", {
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
         "Content-Type": "application/json"
@@ -48,7 +55,7 @@ export default function PatientReport() {
             </tr>
           </thead>
           <tbody>
-            {paginated.map((patient: any) => (
+            {paginated.map((patient: Patient) => (
               <tr key={patient.id} className="border-b">
                 <td>{patient.name}</td>
                 <td>{patient.age}</td>

@@ -15,10 +15,9 @@ import {
   Activity,
   ShoppingCart,
   Plus,
-  TrendingUp,
-  Gift,
   Receipt,
   BarChart,
+  TrendingUp as TrendingUpIcon,
 } from "lucide-react";
 
 interface IconProps { className?: string }
@@ -61,7 +60,7 @@ const navigation: NavigationItem[] = [
     submenu: [
       { name: "Product Catalog", href: "/staff-dashboard/inventory", icon: Package },
       { name: "Add Product", href: "/staff-dashboard/inventory/products/create", icon: Plus },
-      { name: "Stock Movements", href: "/staff-dashboard/inventory/stock-movements", icon: TrendingUp },
+  { name: "Stock Movements", href: "/staff-dashboard/inventory/stock-movements", icon: TrendingUpIcon },
     ],
   },
   {
@@ -94,19 +93,9 @@ const navigation: NavigationItem[] = [
     icon: BarChart,
   },
   {
-    name: "Royalty",
-    href: "/staff-dashboard/royalty",
-    icon: TrendingUp,
-  },
-  {
     name: "Stock Receipts",
     href: "/staff-dashboard/stock-receipts",
     icon: Receipt,
-  },
-  {
-    name: "Gift Cards",
-    href: "/staff-dashboard/gift-cards",
-    icon: Gift,
   },
 ];
 
@@ -201,15 +190,15 @@ const StaffSidebar = ({ mobile = false, open = false, onClose }: StaffSidebarPro
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Today's Patients</span>
-                <span className="font-medium">12</span>
+                <span className="font-medium">—</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Pending Orders</span>
-                <span className="font-medium">5</span>
+                <span className="font-medium">—</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Low Stock Items</span>
-                <span className="font-medium text-orange-600">3</span>
+                <span className="font-medium text-orange-600">—</span>
               </div>
             </div>
           </div>

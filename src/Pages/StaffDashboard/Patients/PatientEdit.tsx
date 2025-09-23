@@ -56,8 +56,16 @@ const PatientEdit = () => {
         setValue("phone", patientData.phone);
         setValue("address", patientData.address);
         setValue("medicalHistory", patientData.medicalHistory || "");
-      } catch (err: any) {
-        setError(err.response?.data?.error || "Failed to fetch patient details");
+      } catch (err) {
+        const message = (() => {
+          if (typeof err === "object" && err && "response" in err) {
+            const resp = (err as { response?: { data?: unknown } }).response;
+            const data = resp?.data as { error?: string; message?: string } | undefined;
+            return data?.error || data?.message;
+          }
+          return undefined;
+        })();
+        setError(message || "Failed to fetch patient details");
         console.error("Error fetching patient:", err);
       } finally {
         setLoading(false);
@@ -81,8 +89,16 @@ const PatientEdit = () => {
         replace: true,
         state: { message: "Patient updated successfully!" }
       });
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to update patient");
+    } catch (err) {
+      const message = (() => {
+        if (typeof err === "object" && err && "response" in err) {
+          const resp = (err as { response?: { data?: unknown } }).response;
+          const data = resp?.data as { error?: string; message?: string } | undefined;
+          return data?.error || data?.message;
+        }
+        return undefined;
+      })();
+      setError(message || "Failed to update patient");
       console.error("Error updating patient:", err);
     } finally {
       setSaving(false);

@@ -3,13 +3,20 @@ import axios from "axios";
 import Pagination from "../Pagination/Pagination";
 import { Card } from "@/components/ui/card";
 
+type LowStockItem = {
+  product: { id: number; name: string; sku: string; category: string };
+  currentStock: number;
+  alertLevel: number;
+  lastUpdated: string;
+};
+
 export default function LowStockAlerts() {
-  const [alerts, setAlerts] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<LowStockItem[]>([]);
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
   useEffect(() => {
-    axios.get("https://staff-optical-production.up.railway.app/shop-admin/reports/inventory/alerts", {
+    axios.get("https://staff-production-c6d9.up.railway.app/shop-admin/reports/inventory/alerts", {
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
         "Content-Type": "application/json"
@@ -36,7 +43,7 @@ export default function LowStockAlerts() {
             </tr>
           </thead>
           <tbody>
-            {paginated.map((item: any) => (
+            {paginated.map((item: LowStockItem) => (
               <tr key={item.product.id} className="border-b">
                 <td>{item.product.name}</td>
                 <td>{item.product.sku}</td>

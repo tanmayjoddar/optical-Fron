@@ -3,13 +3,17 @@ import axios from "axios";
 import Pagination from "../Pagination/Pagination";
 import { Card } from "@/components/ui/card";
 
+type SalesSummary = { totalSales: number; totalOrders: number; avgOrderValue: number; totalTax: number; subtotal: number };
+type SalesDetail = { id: number; date: string; staff: string; patient: string; amount: number; items: number };
+type SalesReportResponse = { summary: SalesSummary; details: SalesDetail[] };
+
 export default function SalesReport() {
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState<SalesReportResponse | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
   useEffect(() => {
-    axios.get("https://staff-optical-production.up.railway.app/shop-admin/reports/sales?period=monthly", {
+      axios.get("https://staff-production-c6d9.up.railway.app/shop-admin/reports/sales?period=monthly", {
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
         "Content-Type": "application/json"
@@ -46,7 +50,7 @@ export default function SalesReport() {
             </tr>
           </thead>
           <tbody>
-            {paginated.map((item: any) => (
+            {paginated.map((item: SalesDetail) => (
               <tr key={item.id} className="border-b">
                 <td>{new Date(item.date).toLocaleDateString()}</td>
                 <td>{item.id}</td>

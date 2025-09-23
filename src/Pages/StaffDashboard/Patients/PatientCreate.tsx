@@ -81,12 +81,16 @@ const PatientCreate = () => {
         }
       }, 1500);
       
-    } catch (err: any) {
-      setError(
-        err.response?.data?.error || 
-        err.response?.data?.message ||
-        "Failed to create patient. Please try again."
-      );
+    } catch (err) {
+      const message = (() => {
+        if (typeof err === "object" && err && "response" in err) {
+          const resp = (err as { response?: { data?: unknown } }).response;
+          const data = resp?.data as { error?: string; message?: string } | undefined;
+          return data?.error || data?.message;
+        }
+        return undefined;
+      })();
+      setError(message || "Failed to create patient. Please try again.");
       console.error("Error creating patient:", err);
     } finally {
       setLoading(false);
@@ -261,7 +265,7 @@ const PatientCreate = () => {
                   {...register("phone", { 
                     required: "Phone number is required",
                     pattern: {
-                      value: /^[\+]?[1-9][\d]{0,15}$/,
+                      value: /^\+?[1-9]\d{0,15}$/,
                       message: "Please enter a valid phone number"
                     }
                   })}

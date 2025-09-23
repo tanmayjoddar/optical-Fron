@@ -29,19 +29,31 @@ const initialState: ShopAdminAuthState = {
   error: null,
 };
 
-export const shopAdminLogin = createAsyncThunk(
+export const shopAdminLogin = createAsyncThunk<
+  { token: string; shopAdmin: ShopAdmin },
+  { email: string; password: string },
+  { rejectValue: string }
+>(
   'shopAdminAuth/login',
   async (
-    { email, password }: { email: string; password: string },
+    { email, password },
     { rejectWithValue }
   ) => {
     try {
       const response = await axios.post('/api/shop-admin/auth/login', { email, password }, {
         headers: { 'Content-Type': 'application/json' },
       });
-      return response.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Login failed');
+      return response.data as { token: string; shopAdmin: ShopAdmin };
+    } catch (err) {
+      const message = (() => {
+        if (typeof err === 'object' && err && 'response' in err) {
+          const resp = (err as { response?: { data?: unknown } }).response;
+          const data = resp?.data as { message?: string } | undefined;
+          return data?.message;
+        }
+        return undefined;
+      })();
+      return rejectWithValue(message || 'Login failed');
     }
   }
 );

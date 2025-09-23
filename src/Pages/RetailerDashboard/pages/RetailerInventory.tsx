@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -11,8 +11,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 export default function RetailerInventory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [summary, setSummary] = useState<any>(null);
-  const [analytics, setAnalytics] = useState<any>(null);
+  type TopCompany = { company?: { name?: string } | null; productCount?: number; totalQuantity?: number; stockValue?: number }
+  type Summary = {
+    totalProducts?: number; totalQuantity?: number; availableStock?: number; allocatedStock?: number;
+    topCompanies?: TopCompany[];
+    recentTransactions?: Array<{ id: number; type?: string; product?: { name?: string } | null; quantity?: number; createdAt: string }>
+  }
+  type LowStockAlert = { product?: { name?: string; company?: { name?: string } } | null; availableStock?: number; reorderLevel?: number; wholesalePrice?: number }
+  type Analytics = { lowStockAlerts?: LowStockAlert[] }
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -26,8 +34,9 @@ export default function RetailerInventory() {
         if (!mounted) return;
         setSummary(s);
         setAnalytics(a);
-      } catch (e: any) {
-        setError(e.message || "Failed to load inventory summary");
+      } catch (e) {
+        const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
+        setError(message || "Failed to load inventory summary");
       } finally {
         setLoading(false);
       }
@@ -103,7 +112,7 @@ export default function RetailerInventory() {
                 </tr>
               </thead>
               <tbody>
-                {(summary?.topCompanies ?? []).map((c: any, idx: number) => (
+                {(summary?.topCompanies ?? []).map((c: TopCompany, idx: number) => (
                   <tr key={idx} className="border-t">
                     <td className="py-2 pr-4">{c.company?.name}</td>
                     <td className="py-2 pr-4">{c.productCount}</td>
@@ -141,7 +150,7 @@ export default function RetailerInventory() {
                     </tr>
                   </thead>
                   <tbody>
-                    {(summary?.recentTransactions ?? []).map((t: any) => (
+                    {(summary?.recentTransactions ?? []).map((t) => (
                       <tr key={t.id} className="border-t">
                         <td className="py-2 pr-4">{t.type}</td>
                         <td className="py-2 pr-4">{t.product?.name}</td>
@@ -173,7 +182,7 @@ export default function RetailerInventory() {
                     </tr>
                   </thead>
                   <tbody>
-                    {(analytics?.lowStockAlerts ?? []).map((a: any, idx: number) => (
+                    {(analytics?.lowStockAlerts ?? []).map((a: LowStockAlert, idx: number) => (
                       <tr key={idx} className="border-t">
                         <td className="py-2 pr-4">{a.product?.name}</td>
                         <td className="py-2 pr-4">{a.product?.company?.name}</td>
@@ -218,26 +227,37 @@ function ProductsTable() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [eyewearType, setEyewearType] = useState<string>("");
-  const [data, setData] = useState<any>({ products: [], pagination: null });
+  type ProductRow = {
+    id: number;
+    product?: { name?: string; company?: { name?: string } } | null;
+    availableStock?: number;
+    allocatedStock?: number;
+    mrp?: number;
+    wholesalePrice?: number;
+  };
+  const [data, setData] = useState<{ products: ProductRow[]; pagination?: unknown }>({ products: [], pagination: null });
 
   const fetchData = async (page = 1) => {
     try {
       setLoading(true);
       const res = await RetailerAPI.myProducts({
         search: query || undefined,
-        eyewearType: eyewearType as any || undefined,
+        eyewearType: (eyewearType as 'GLASSES' | 'SUNGLASSES' | 'LENSES' | '') || undefined,
         page,
         limit: 10,
       });
-      setData(res || { products: [], pagination: null });
-    } catch (e: any) {
-      setError(e.message || "Failed to load products");
+      setData((res as { products: ProductRow[]; pagination?: unknown }) || { products: [], pagination: null });
+    } catch (e) {
+      const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
+      setError(message || "Failed to load products");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchData(1); }, []);
+  const fetchRef = useRef(fetchData);
+  useEffect(() => { fetchRef.current = fetchData; });
+  useEffect(() => { fetchRef.current(1); }, []);
 
   return (
     <div className="space-y-4">
@@ -270,7 +290,7 @@ function ProductsTable() {
               </tr>
             </thead>
             <tbody>
-              {(data.products ?? []).map((p: any) => (
+              {(data.products ?? []).map((p: ProductRow) => (
                 <tr key={p.id} className="border-t">
                   <td className="py-2 pr-4">{p.product?.name}</td>
                   <td className="py-2 pr-4">{p.product?.company?.name}</td>
@@ -291,7 +311,8 @@ function ProductsTable() {
 function CompaniesSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [companies, setCompanies] = useState<any[]>([]);
+  type CompanyRow = { id: number; name: string; description?: string }
+  const [companies, setCompanies] = useState<CompanyRow[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
   const [newCompany, setNewCompany] = useState({ name: "", description: "" });
   const [edit, setEdit] = useState<{ open: boolean; id?: number; name: string; description: string }>({ open: false, name: "", description: "" });
@@ -300,15 +321,18 @@ function CompaniesSection() {
     try {
       setLoading(true);
       const res = await RetailerAPI.companies();
-      setCompanies(res || []);
-    } catch (e: any) {
-      setError(e.message || "Failed to load companies");
+      setCompanies((res as CompanyRow[]) || []);
+    } catch (e) {
+      const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
+      setError(message || "Failed to load companies");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchCompanies(); }, []);
+  const fetchCompaniesRef = useRef(fetchCompanies);
+  useEffect(() => { fetchCompaniesRef.current = fetchCompanies; });
+  useEffect(() => { fetchCompaniesRef.current(); }, []);
 
   return (
     <div className="space-y-4">
@@ -332,7 +356,9 @@ function CompaniesSection() {
                     setNewCompany({ name: "", description: "" });
                     setOpenAdd(false);
                     await fetchCompanies();
-                  } catch (e) {}
+                  } catch {
+                    // No-op: error shown via fetchCompanies on next render if needed
+                  }
                 }}>Save</Button>
               </div>
             </div>
@@ -355,14 +381,14 @@ function CompaniesSection() {
               </tr>
             </thead>
             <tbody>
-              {companies.map((c: any) => (
+              {companies.map((c: CompanyRow) => (
                 <tr key={c.id} className="border-t">
                   <td className="py-2 pr-4">{c.name}</td>
                   <td className="py-2 pr-4">{c.description}</td>
                   <td className="py-2 pr-4">
-                    <Dialog open={edit.open && edit.id === c.id} onOpenChange={(v) => setEdit(v ? { open: true, id: c.id, name: c.name, description: c.description } : { open: false, name: "", description: "" })}>
+                    <Dialog open={edit.open && edit.id === c.id} onOpenChange={(v) => setEdit(v ? { open: true, id: c.id, name: c.name, description: c.description ?? "" } : { open: false, name: "", description: "" })}>
                       <DialogTrigger asChild>
-                        <Button size="sm" variant="outline" onClick={() => setEdit({ open: true, id: c.id, name: c.name, description: c.description })}>Edit</Button>
+                        <Button size="sm" variant="outline" onClick={() => setEdit({ open: true, id: c.id, name: c.name, description: c.description ?? "" })}>Edit</Button>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
@@ -377,7 +403,9 @@ function CompaniesSection() {
                                 await RetailerAPI.updateCompany(edit.id!, { name: edit.name || undefined, description: edit.description || undefined });
                                 setEdit({ open: false, name: "", description: "" });
                                 await fetchCompanies();
-                              } catch (e) {}
+                              } catch {
+                                // No-op: will refresh on next attempt
+                              }
                             }}>Save</Button>
                           </div>
                         </div>

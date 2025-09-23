@@ -1,7 +1,7 @@
 import axios, { AxiosHeaders, type AxiosRequestHeaders } from "axios";
 
 export const staffApi = axios.create({
-  baseURL: "https://staff-optical-production.up.railway.app",
+  baseURL: "https://staff-production-c6d9.up.railway.app",
   headers: { "Content-Type": "application/json" },
 });
 

@@ -2,7 +2,7 @@ import axios, { AxiosHeaders, type AxiosRequestHeaders } from "axios";
 
 // Base axios instance for Retailer Portal API
 export const retailerApi = axios.create({
-  baseURL: "https://staff-optical-production.up.railway.app/retailer",
+  baseURL: "https://staff-production-c6d9.up.railway.app/retailer",
   headers: { "Content-Type": "application/json" },
 });
 

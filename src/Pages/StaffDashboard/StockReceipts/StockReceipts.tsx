@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -34,7 +34,9 @@ export default function StockReceipts() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  const fetchRef = useRef(fetchData);
+  useEffect(() => { fetchRef.current = fetchData; });
+  useEffect(() => { fetchRef.current(); }, []);
 
   return (
     <div className="space-y-6">

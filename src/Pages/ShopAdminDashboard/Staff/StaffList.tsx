@@ -4,13 +4,15 @@ import Pagination from "../Pagination/Pagination";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router";
 
+type StaffMember = { id: number; name: string; email: string; role: string; totalSales: number; totalOrders: number; isActive: boolean };
+
 export default function StaffList() {
-  const [staff, setStaff] = useState<any[]>([]);
+  const [staff, setStaff] = useState<StaffMember[]>([]);
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
   useEffect(() => {
-    axios.get("https://staff-optical-production.up.railway.app/shop-admin/staff", {
+      axios.get("https://staff-production-c6d9.up.railway.app/shop-admin/staff", {
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
         "Content-Type": "application/json"
@@ -38,7 +40,7 @@ export default function StaffList() {
             </tr>
           </thead>
           <tbody>
-            {paginated.map((member: any) => (
+            {paginated.map((member: StaffMember) => (
               <tr key={member.id} className="border-b">
                 <td>{member.name}</td>
                 <td>{member.email}</td>
