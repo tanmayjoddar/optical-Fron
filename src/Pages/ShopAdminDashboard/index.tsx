@@ -17,6 +17,9 @@ import StaffList from "./Staff/StaffList";
 import StaffDetails from "./Staff/StaffDetails";
 import StaffActivities from "./Staff/StaffActivities";
 import DoctorsList from "./Doctors/DoctorsList";
+import InventoryStatus from "./Inventory/InventoryStatus";
+import StockIn from "./Inventory/StockIn";
+import AdjustStock from "./Inventory/AdjustStock";
 
 export default function ShopAdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -37,6 +40,10 @@ export default function ShopAdminDashboard() {
               <Route path="reports/staff-sales" element={<StaffSalesReport />} />
               <Route path="reports/inventory" element={<InventoryReport />} />
               <Route path="reports/inventory-status" element={<InventoryStatusReport />} />
+              {/* Inventory Management */}
+              <Route path="inventory/status" element={<InventoryStatus />} />
+              <Route path="inventory/stock-in" element={<StockIn />} />
+              <Route path="inventory/adjust" element={<AdjustStock />} />
               <Route path="reports/low-stock" element={<LowStockAlerts />} />
               <Route path="reports/patients" element={<PatientReport />} />
               <Route path="reports/patients/visits" element={<PatientVisitHistory />} />

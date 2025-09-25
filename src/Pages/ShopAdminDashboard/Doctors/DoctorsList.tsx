@@ -30,6 +30,7 @@ export default function DoctorsList() {
     qualification: "",
     specialization: "",
     experience: "",
+    password: "",
   });
 
   const [page, setPage] = useState(1);
@@ -63,6 +64,7 @@ export default function DoctorsList() {
       const payload: any = {
         name: form.name.trim(),
         email: form.email.trim(),
+        password: form.password,
       };
       if (form.phone) payload.phone = form.phone.trim();
       if (form.qualification) payload.qualification = form.qualification.trim();
@@ -70,7 +72,7 @@ export default function DoctorsList() {
       if (form.experience) payload.experience = Number(form.experience);
 
       await ShopAdminAPI.doctors.add(payload);
-      setForm({ name: "", email: "", phone: "", qualification: "", specialization: "", experience: "" });
+      setForm({ name: "", email: "", phone: "", qualification: "", specialization: "", experience: "", password: "" });
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -123,8 +125,12 @@ export default function DoctorsList() {
             <label className="text-sm text-muted-foreground">Experience (years)</label>
             <Input type="number" min={0} value={form.experience} onChange={(e) => setForm((f) => ({ ...f, experience: e.target.value }))} placeholder="Optional" />
           </div>
+          <div className="md:col-span-2">
+            <label className="text-sm text-muted-foreground">Password</label>
+            <Input type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} placeholder="Password" />
+          </div>
           <div className="md:col-span-6 flex justify-end">
-            <Button onClick={handleAdd} disabled={loading || !form.name.trim() || !form.email.trim()}>
+            <Button onClick={handleAdd} disabled={loading || !form.name.trim() || !form.email.trim() || !form.password}>
               {loading ? 'Saving…' : 'Add Doctor'}
             </Button>
           </div>

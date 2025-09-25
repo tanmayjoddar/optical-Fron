@@ -684,6 +684,39 @@ export const ShopAdminAPI = {
     getInventoryStatus: () =>
       shopAdminApi.get('/reports/inventory/status').then((r) => r.data),
   },
+
+  // Inventory Management
+  inventory: {
+    // POST /shop-admin/inventory/stock-in
+    stockIn: (data: {
+      productId?: number;
+      barcode?: string;
+      quantity: number;
+      costPrice?: number;
+      supplier?: string;
+      notes?: string;
+    }) => shopAdminApi.post('/inventory/stock-in', data).then((r) => r.data),
+
+    // POST /shop-admin/inventory/adjust
+    adjust: (data: {
+      productId?: number;
+      barcode?: string;
+      type: 'ADD' | 'REMOVE';
+      quantity: number;
+      reason?: string;
+      notes?: string;
+    }) => shopAdminApi.post('/inventory/adjust', data).then((r) => r.data),
+
+    // GET /shop-admin/inventory/status
+    getStatus: (params: {
+      page?: number;
+      limit?: number;
+      lowStock?: boolean;
+      sortBy?: 'name' | 'stock' | 'updatedAt' | string;
+      sortOrder?: 'asc' | 'desc';
+      search?: string;
+    } = {}) => shopAdminApi.get('/inventory/status', { params }).then((r) => r.data),
+  },
 };
 
 // ============================================================================

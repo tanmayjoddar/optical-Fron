@@ -109,6 +109,29 @@ const navItems: Array<NavItem | NavSection> = [
     ]
   },
   {
+    category: "Inventory Management",
+    items: [
+      {
+        label: "Status",
+        to: "/shop-admin-dashboard/inventory/status",
+        icon: Package,
+        description: "Browse stock levels"
+      },
+      {
+        label: "Stock In",
+        to: "/shop-admin-dashboard/inventory/stock-in",
+        icon: Package,
+        description: "Receive inventory"
+      },
+      {
+        label: "Adjust Stock",
+        to: "/shop-admin-dashboard/inventory/adjust",
+        icon: Package,
+        description: "Manual correction"
+      }
+    ]
+  },
+  {
     category: "Staff Management",
     items: [
       { 
