@@ -27,6 +27,7 @@ import PrescriptionsList from "./Prescriptions/PrescriptionsList";
 import PrescriptionCreate from "./Prescriptions/PrescriptionCreate";
 import Reports from "./Reports/Reports";
 import StockReceipts from "./StockReceipts/StockReceipts";
+import StockReceiptCreate from "./StockReceipts/StockReceiptCreate";
 import MyAttendance from "./Attendance/MyAttendance";
 import GiftCardIssue from "./GiftCards/GiftCardIssue";
 import GiftCardRedeem from "./GiftCards/GiftCardRedeem";
@@ -111,6 +112,7 @@ const StaffDashboard = () => {
 
         {/* Stock Receipts */}
         <Route path="stock-receipts" element={<StockReceipts />} />
+        <Route path="stock-receipts/create" element={<StockReceiptCreate />} />
 
         {/* Catch all - redirect to dashboard */}
         <Route path="*" element={<Navigate to="/staff-dashboard" replace />} />
