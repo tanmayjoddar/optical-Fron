@@ -489,8 +489,8 @@ export const StaffAPI = {
     getAll: () => apiClient.get('/api/prescription'),
     getById: (id: number) => apiClient.get(`/api/prescription/${id}`),
     listPrescriptions: (params: { page?: number; limit?: number; patientId?: number } = {}) =>
-      staffApi.get('/prescriptions', { params }).then((r) => r.data),
-    getPrescription: (id: number) => staffApi.get(`/prescriptions/${id}`).then((r) => r.data),
+      staffApi.get('/api/prescription', { params }).then((r) => r.data),
+    getPrescription: (id: number) => staffApi.get(`/api/prescription/${id}`).then((r) => r.data),
     create: (data: {
       patientId: number;
       rightEye?: { sph?: string; cyl?: string; axis?: string; add?: string };
@@ -511,28 +511,28 @@ export const StaffAPI = {
     }) => {
       // Support both formats - staff API and general API
       if (data.rightEye || data.leftEye) {
-        return staffApi.post('/prescriptions', data).then((r) => r.data);
+        return staffApi.post('/api/prescription', data).then((r) => r.data);
       }
       return apiClient.post('/api/prescription', data);
     },
-    getPdf: (id: number) => staffApi.get(`/prescriptions/${id}/pdf`, { responseType: 'blob' }).then((r) => r.data as Blob),
-    getPrescriptionThermal: (id: number) => staffApi.get(`/prescriptions/${id}/thermal`, { responseType: 'text' }).then((r) => r.data as string),
+    getPdf: (id: number) => staffApi.get(`/api/prescription/${id}/pdf`, { responseType: 'blob' }).then((r) => r.data as Blob),
+    getPrescriptionThermal: (id: number) => staffApi.get(`/api/prescription/${id}/thermal`, { responseType: 'text' }).then((r) => r.data as string),
     getThermal: (id: number) => apiClient.get(`/api/prescription/${id}/thermal`),
   },
 
   // Reports
   reports: {
-    dailyReport: (date: string) => staffApi.get('/reports/daily', { params: { date } }).then((r) => r.data),
-    monthlyReport: (year: number, month: number) => staffApi.get('/reports/monthly', { params: { year, month } }).then((r) => r.data),
-    staffSalesReport: (startDate: string, endDate: string) => staffApi.get('/reports/staff-sales', { params: { startDate, endDate } }).then((r) => r.data),
-    salesByPriceTier: (startDate: string, endDate: string) => staffApi.get('/reports/sales-by-price-tier', { params: { startDate, endDate } }).then((r) => r.data),
-    bestSellersByPriceTier: (startDate: string, endDate: string, limit?: number) => staffApi.get('/reports/best-sellers-by-price-tier', { params: { startDate, endDate, limit } }).then((r) => r.data),
+    dailyReport: (date: string) => staffApi.get('/api/reports/daily', { params: { date } }).then((r) => r.data),
+    monthlyReport: (year: number, month: number) => staffApi.get('/api/reports/monthly', { params: { year, month } }).then((r) => r.data),
+    staffSalesReport: (startDate: string, endDate: string) => staffApi.get('/api/reports/staff-sales', { params: { startDate, endDate } }).then((r) => r.data),
+    salesByPriceTier: (startDate: string, endDate: string) => staffApi.get('/api/reports/sales-by-price-tier', { params: { startDate, endDate } }).then((r) => r.data),
+    bestSellersByPriceTier: (startDate: string, endDate: string, limit?: number) => staffApi.get('/api/reports/best-sellers-by-price-tier', { params: { startDate, endDate, limit } }).then((r) => r.data),
   },
 
   // Royalty System
   royalty: {
-    addRoyaltyPoints: (patientId: number) => staffApi.post('/royalty', { patientId }).then((r) => r.data),
-    getRoyaltyPoints: (patientId: number) => staffApi.get(`/royalty/${patientId}`).then((r) => r.data),
+    addRoyaltyPoints: (patientId: number) => staffApi.post('/api/royalty', { patientId }).then((r) => r.data),
+    getRoyaltyPoints: (patientId: number) => staffApi.get(`/api/royalty/${patientId}`).then((r) => r.data),
   },
 
   // Stock Receipts
