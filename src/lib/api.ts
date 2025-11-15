@@ -1042,6 +1042,7 @@ export const ShopAdminAPI = {
       password: string;
       name: string;
       role: string;
+      shopId: number;
     }) => shopAdminApi.post("/auth/register", data).then((r) => r.data),
     getAll: (
       params: {

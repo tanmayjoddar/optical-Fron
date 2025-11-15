@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ShopAdminAPI } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 import { AlertCircle, CheckCircle } from "lucide-react";
 
 const STAFF_ROLES = [
@@ -21,6 +22,7 @@ const STAFF_ROLES = [
 
 export default function StaffRegister() {
   const navigate = useNavigate();
+  const { shopId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -72,6 +74,7 @@ export default function StaffRegister() {
         password: formData.password,
         name: formData.name,
         role: formData.role,
+        shopId: shopId || 0,
       });
 
       setSuccess(true);
