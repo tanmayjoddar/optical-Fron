@@ -14,6 +14,7 @@ import LowStockAlerts from "./Reports/LowStockAlerts";
 import PatientReport from "./Reports/PatientReport";
 import PatientVisitHistory from "./Reports/PatientVisitHistory";
 import StaffList from "./Staff/StaffList";
+import StaffRegister from "./Staff/StaffRegister";
 import StaffDetails from "./Staff/StaffDetails";
 import StaffActivities from "./Staff/StaffActivities";
 import DoctorsList from "./Doctors/DoctorsList";
@@ -59,6 +60,7 @@ export default function ShopAdminDashboard() {
                 element={<PatientVisitHistory />}
               />
               <Route path="staff" element={<StaffList />} />
+              <Route path="staff/register" element={<StaffRegister />} />
               <Route path="staff/:staffId" element={<StaffDetails />} />
               <Route
                 path="staff/:staffId/activities"

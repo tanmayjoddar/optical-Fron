@@ -1037,6 +1037,12 @@ export const ShopAdminAPI = {
 
   // Staff Management
   staff: {
+    register: (data: {
+      email: string;
+      password: string;
+      name: string;
+      role: string;
+    }) => shopAdminApi.post("/auth/register", data).then((r) => r.data),
     getAll: (
       params: {
         page?: number;

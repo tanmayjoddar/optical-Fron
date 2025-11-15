@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   Users,
   UserCheck,
+  UserPlus,
   FileText,
   Calendar,
   ShoppingCart,
@@ -150,6 +151,12 @@ const navItems: Array<NavItem | NavSection> = [
         to: "/shop-admin-dashboard/staff",
         icon: Users,
         description: "Manage staff",
+      },
+      {
+        label: "Register Staff",
+        to: "/shop-admin-dashboard/staff/register",
+        icon: UserPlus,
+        description: "Add new staff member",
       },
       {
         label: "Doctors",
