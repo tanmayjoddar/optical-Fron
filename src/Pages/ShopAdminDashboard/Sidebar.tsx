@@ -7,19 +7,20 @@ import { Badge } from "@/components/ui/badge";
 import { Link, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import { ShopAdminAPI } from "@/lib/api";
-import { 
-  LayoutDashboard, 
-  TrendingUp, 
-  Activity, 
-  BarChart3, 
-  Package, 
-  AlertTriangle, 
-  Users, 
-  UserCheck, 
+import {
+  LayoutDashboard,
+  TrendingUp,
+  Activity,
+  BarChart3,
+  Package,
+  AlertTriangle,
+  Users,
+  UserCheck,
+  UserPlus,
   FileText,
   Calendar,
   ShoppingCart,
-  Stethoscope
+  Stethoscope,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 
@@ -37,76 +38,76 @@ type NavItem = {
 };
 type NavSection = { category: string; items: NavItem[] };
 const navItems: Array<NavItem | NavSection> = [
-  { 
-    label: "Overview", 
-    to: "/shop-admin-dashboard", 
+  {
+    label: "Overview",
+    to: "/shop-admin-dashboard",
     icon: LayoutDashboard,
-    description: "Dashboard overview"
+    description: "Dashboard overview",
   },
-  { 
-    label: "Growth", 
-    to: "/shop-admin-dashboard/growth", 
+  {
+    label: "Growth",
+    to: "/shop-admin-dashboard/growth",
     icon: TrendingUp,
-    description: "Growth analytics"
+    description: "Growth analytics",
   },
-  { 
-    label: "Activities", 
-    to: "/shop-admin-dashboard/activities", 
+  {
+    label: "Activities",
+    to: "/shop-admin-dashboard/activities",
     icon: Activity,
-    description: "Recent activities"
+    description: "Recent activities",
   },
   {
     category: "Reports",
     items: [
-      { 
-        label: "Sales Report", 
-        to: "/shop-admin-dashboard/reports/sales", 
+      {
+        label: "Sales Report",
+        to: "/shop-admin-dashboard/reports/sales",
         icon: BarChart3,
-        description: "Sales analytics"
+        description: "Sales analytics",
       },
-      { 
-        label: "Product Sales", 
-        to: "/shop-admin-dashboard/reports/products", 
+      {
+        label: "Product Sales",
+        to: "/shop-admin-dashboard/reports/products",
         icon: ShoppingCart,
-        description: "Product performance"
+        description: "Product performance",
       },
-      { 
-        label: "Staff Sales", 
-        to: "/shop-admin-dashboard/reports/staff-sales", 
+      {
+        label: "Staff Sales",
+        to: "/shop-admin-dashboard/reports/staff-sales",
         icon: BarChart3,
-        description: "Sales by staff"
+        description: "Sales by staff",
       },
-      { 
-        label: "Inventory", 
-        to: "/shop-admin-dashboard/reports/inventory", 
+      {
+        label: "Inventory",
+        to: "/shop-admin-dashboard/reports/inventory",
         icon: Package,
-        description: "Stock management"
+        description: "Stock management",
       },
-      { 
-        label: "Inventory Status", 
-        to: "/shop-admin-dashboard/reports/inventory-status", 
+      {
+        label: "Inventory Status",
+        to: "/shop-admin-dashboard/reports/inventory-status",
         icon: Package,
-        description: "Current stock levels"
+        description: "Current stock levels",
       },
-      { 
-        label: "Low Stock Alerts", 
-        to: "/shop-admin-dashboard/reports/low-stock", 
+      {
+        label: "Low Stock Alerts",
+        to: "/shop-admin-dashboard/reports/low-stock",
         icon: AlertTriangle,
-        description: "Stock alerts"
+        description: "Stock alerts",
       },
-      { 
-        label: "Patients", 
-        to: "/shop-admin-dashboard/reports/patients", 
+      {
+        label: "Patients",
+        to: "/shop-admin-dashboard/reports/patients",
         icon: FileText,
-        description: "Patient reports"
+        description: "Patient reports",
       },
-      { 
-        label: "Patient Visits", 
-        to: "/shop-admin-dashboard/reports/patients/visits", 
+      {
+        label: "Patient Visits",
+        to: "/shop-admin-dashboard/reports/patients/visits",
         icon: Calendar,
-        description: "Visit history"
+        description: "Visit history",
       },
-    ]
+    ],
   },
   {
     category: "Inventory Management",
@@ -115,39 +116,56 @@ const navItems: Array<NavItem | NavSection> = [
         label: "Status",
         to: "/shop-admin-dashboard/inventory/status",
         icon: Package,
-        description: "Browse stock levels"
+        description: "Browse stock levels",
       },
       {
         label: "Stock In",
         to: "/shop-admin-dashboard/inventory/stock-in",
         icon: Package,
-        description: "Receive inventory"
+        description: "Receive inventory",
       },
       {
         label: "Adjust Stock",
         to: "/shop-admin-dashboard/inventory/adjust",
         icon: Package,
-        description: "Manual correction"
-      }
-    ]
+        description: "Manual correction",
+      },
+    ],
+  },
+  {
+    category: "Stock Management",
+    items: [
+      {
+        label: "Stock Receipts",
+        to: "/shop-admin-dashboard/stock/receipts",
+        icon: Package,
+        description: "Verify incoming shipments",
+      },
+    ],
   },
   {
     category: "Staff Management",
     items: [
-      { 
-        label: "Staff List", 
-        to: "/shop-admin-dashboard/staff", 
+      {
+        label: "Staff List",
+        to: "/shop-admin-dashboard/staff",
         icon: Users,
-        description: "Manage staff"
+        description: "Manage staff",
       },
-      { 
-        label: "Doctors", 
-        to: "/shop-admin-dashboard/doctors", 
+      {
+        label: "Register Staff",
+        to: "/shop-admin-dashboard/staff/register",
+        icon: UserPlus,
+        description: "Add new staff member",
+      },
+      {
+        label: "Doctors",
+        to: "/shop-admin-dashboard/doctors",
         icon: Stethoscope,
-        description: "Manage optometrists"
+        description: "Manage optometrists",
       },
-    ]
-  }
+    ],
+  },
 ];
 
 function SidebarContent() {
@@ -162,18 +180,20 @@ function SidebarContent() {
         const list = Array.isArray(res)
           ? res
           : Array.isArray(res?.alerts)
-            ? res.alerts
-            : Array.isArray(res?.data)
-              ? res.data
-              : [];
+          ? res.alerts
+          : Array.isArray(res?.data)
+          ? res.data
+          : [];
         if (!cancelled) setLowStockCount(list.length || 0);
       } catch {
         if (!cancelled) setLowStockCount(0);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
-  
+
   const isActiveLink = (to: string) => {
     return location.pathname === to || location.pathname.startsWith(to + "/");
   };
@@ -181,7 +201,7 @@ function SidebarContent() {
   const renderNavItem = (item: NavItem) => {
     const Icon = item.icon;
     const isActive = isActiveLink(item.to);
-    
+
     return (
       <Button
         key={item.to}
@@ -194,11 +214,17 @@ function SidebarContent() {
         asChild
       >
         <Link to={item.to} className="relative flex items-center gap-3 w-full">
-          <span className={`absolute left-0 h-8 w-1 rounded-r bg-primary transition-opacity ${isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`} />
+          <span
+            className={`absolute left-0 h-8 w-1 rounded-r bg-primary transition-opacity ${
+              isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
+          />
           <Icon className="h-4 w-4 flex-shrink-0" />
           <div className="flex-1 text-left">
             <div className="text-sm font-medium">{item.label}</div>
-            <div className="text-xs text-muted-foreground">{item.description}</div>
+            <div className="text-xs text-muted-foreground">
+              {item.description}
+            </div>
           </div>
           {(() => {
             // Dynamic badge for Low Stock Alerts
@@ -226,22 +252,21 @@ function SidebarContent() {
 
   return (
     // min-h-0 allows the ScrollArea (flex child) to become scrollable instead of forcing parent to grow
-  <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full min-h-0">
       <div className="p-6">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-xl clay flex items-center justify-center">
             <UserCheck className="h-4 w-4 text-primary" />
           </div>
-          <h2 className="text-lg font-bold text-brand-gradient">
-            OpticalShop
-          </h2>
+          <h2 className="text-lg font-bold text-brand-gradient">OpticalShop</h2>
         </div>
       </div>
-      
+
       <div className="flex-1 px-4 h-full overflow-y-auto custom-sidebar-scroll">
-        <div className="space-y-6 pb-24 pt-1">{/* larger bottom padding to ensure last item fully scrolls above scrollbar */}
+        <div className="space-y-6 pb-24 pt-1">
+          {/* larger bottom padding to ensure last item fully scrolls above scrollbar */}
           {navItems.map((section, index) => {
-            if ('items' in section) {
+            if ("items" in section) {
               return (
                 <div key={index}>
                   <div className="px-3 py-2">
@@ -252,7 +277,9 @@ function SidebarContent() {
                   <div className="space-y-1">
                     {section.items.map(renderNavItem)}
                   </div>
-                  {index < navItems.length - 1 && <Separator className="my-4" />}
+                  {index < navItems.length - 1 && (
+                    <Separator className="my-4" />
+                  )}
                 </div>
               );
             } else {
@@ -269,13 +296,16 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
   return (
     <>
       {/* Desktop Sidebar */}
-  <aside className="hidden md:flex md:w-80 md:flex-col md:fixed md:inset-y-0 z-50 border-r border-sidebar-border bg-sidebar h-screen">
+      <aside className="hidden md:flex md:w-80 md:flex-col md:fixed md:inset-y-0 z-50 border-r border-sidebar-border bg-sidebar h-screen">
         <SidebarContent />
       </aside>
-      
+
       {/* Mobile Sidebar */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-  <SheetContent side="left" className="p-0 w-80 bg-sidebar flex flex-col h-screen">
+        <SheetContent
+          side="left"
+          className="p-0 w-80 bg-sidebar flex flex-col h-screen"
+        >
           <SidebarContent />
         </SheetContent>
       </Sheet>

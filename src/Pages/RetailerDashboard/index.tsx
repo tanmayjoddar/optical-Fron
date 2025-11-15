@@ -7,7 +7,7 @@ import RetailerDistributions from "./pages/RetailerDistributions.tsx";
 import RetailerReports from "./pages/RetailerReports.tsx";
 import RetailerProfile from "./pages/RetailerProfile.tsx";
 import { RetailerAPI } from "@/lib/api";
-import RetailerHeader from './Header';
+import RetailerHeader from "./Header";
 
 export default function RetailerDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,26 +25,92 @@ export default function RetailerDashboard() {
         // non-fatal: keep default fallback label
       }
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
   return (
     <div className="min-h-screen bg-app-gradient">
       {/* Simple sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-40 w-72 p-4 transition-transform md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} glass-card rounded-none overflow-y-auto h-screen`}
-           aria-hidden={!sidebarOpen && undefined}>
+      <div
+        className={`fixed inset-y-0 left-0 z-40 w-72 p-4 transition-transform md:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } glass-card rounded-none overflow-y-auto h-screen`}
+        aria-hidden={!sidebarOpen && undefined}
+      >
         <div className="flex items-center justify-between mb-6">
-          <div className="text-xl font-bold text-brand-gradient" title={brand || undefined}>
+          <div
+            className="text-xl font-bold text-brand-gradient"
+            title={brand || undefined}
+          >
             {brand || "Dashboard"}
           </div>
-          <button className="md:hidden" onClick={() => setSidebarOpen(false)}>✕</button>
+          <button className="md:hidden" onClick={() => setSidebarOpen(false)}>
+            ✕
+          </button>
         </div>
         <nav className="space-y-2">
-          <NavLink to="/retailer-dashboard" end className={({isActive}) => `block px-3 py-2 rounded-md hover:bg-muted/40 ${isActive ? 'bg-muted/50 font-medium' : ''}`}>Overview</NavLink>
-          <NavLink to="/retailer-dashboard/inventory" className={({isActive}) => `block px-3 py-2 rounded-md hover:bg-muted/40 ${isActive ? 'bg-muted/50 font-medium' : ''}`}>Inventory</NavLink>
-          <NavLink to="/retailer-dashboard/shops" className={({isActive}) => `block px-3 py-2 rounded-md hover:bg-muted/40 ${isActive ? 'bg-muted/50 font-medium' : ''}`}>Shops</NavLink>
-          <NavLink to="/retailer-dashboard/distributions" className={({isActive}) => `block px-3 py-2 rounded-md hover:bg-muted/40 ${isActive ? 'bg-muted/50 font-medium' : ''}`}>Distributions</NavLink>
-          <NavLink to="/retailer-dashboard/reports" className={({isActive}) => `block px-3 py-2 rounded-md hover:bg-muted/40 ${isActive ? 'bg-muted/50 font-medium' : ''}`}>Reports</NavLink>
-          <NavLink to="/retailer-dashboard/profile" className={({isActive}) => `block px-3 py-2 rounded-md hover:bg-muted/40 ${isActive ? 'bg-muted/50 font-medium' : ''}`}>Profile</NavLink>
+          <NavLink
+            to="/retailer-dashboard"
+            end
+            className={({ isActive }) =>
+              `block px-3 py-2 rounded-md hover:bg-muted/40 ${
+                isActive ? "bg-muted/50 font-medium" : ""
+              }`
+            }
+          >
+            Overview
+          </NavLink>
+          <NavLink
+            to="/retailer-dashboard/inventory"
+            className={({ isActive }) =>
+              `block px-3 py-2 rounded-md hover:bg-muted/40 ${
+                isActive ? "bg-muted/50 font-medium" : ""
+              }`
+            }
+          >
+            Inventory
+          </NavLink>
+          <NavLink
+            to="/retailer-dashboard/shops"
+            className={({ isActive }) =>
+              `block px-3 py-2 rounded-md hover:bg-muted/40 ${
+                isActive ? "bg-muted/50 font-medium" : ""
+              }`
+            }
+          >
+            Shops & Network
+          </NavLink>
+          <NavLink
+            to="/retailer-dashboard/distributions"
+            className={({ isActive }) =>
+              `block px-3 py-2 rounded-md hover:bg-muted/40 ${
+                isActive ? "bg-muted/50 font-medium" : ""
+              }`
+            }
+          >
+            Distributions
+          </NavLink>
+          <NavLink
+            to="/retailer-dashboard/reports"
+            className={({ isActive }) =>
+              `block px-3 py-2 rounded-md hover:bg-muted/40 ${
+                isActive ? "bg-muted/50 font-medium" : ""
+              }`
+            }
+          >
+            Reports
+          </NavLink>
+          <NavLink
+            to="/retailer-dashboard/profile"
+            className={({ isActive }) =>
+              `block px-3 py-2 rounded-md hover:bg-muted/40 ${
+                isActive ? "bg-muted/50 font-medium" : ""
+              }`
+            }
+          >
+            Profile
+          </NavLink>
         </nav>
       </div>
 
@@ -60,7 +126,7 @@ export default function RetailerDashboard() {
               <Route path="distributions" element={<RetailerDistributions />} />
               <Route path="reports" element={<RetailerReports />} />
               <Route path="profile" element={<RetailerProfile />} />
-              <Route path="*" element={<Navigate to="." replace/>} />
+              <Route path="*" element={<Navigate to="." replace />} />
             </Routes>
           </div>
         </main>
