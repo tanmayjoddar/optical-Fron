@@ -56,6 +56,8 @@ import type {
   DistributionsListParams,
   ShopDistributionsParams,
   RetailerShopsParams,
+  AvailableShopsResponse,
+  MyShopNetworkResponse,
 } from "./types/retailer";
 
 // ============================================================================
@@ -835,6 +837,16 @@ export const RetailerAPI = {
       retailerApi
         .put(`/shops/${retailerShopId}`, data)
         .then((r) => r.data as UpdateShopRelationshipResponse),
+    // Endpoint 32: Get Available Shops for Connection
+    available: (): Promise<AvailableShopsResponse> =>
+      retailerApi
+        .get("/shops/available")
+        .then((r) => r.data as AvailableShopsResponse),
+    // Endpoint 33: Get My Shop Network with Enhanced Analytics
+    myNetwork: (): Promise<MyShopNetworkResponse> =>
+      retailerApi
+        .get("/shops/my-network")
+        .then((r) => r.data as MyShopNetworkResponse),
   },
 
   // Distribution Management
