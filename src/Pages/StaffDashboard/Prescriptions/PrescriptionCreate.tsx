@@ -76,10 +76,9 @@ const PrescriptionCreate = () => {
       setError(null);
       setShowSuccess(false);
 
-      // Helper function to clean empty strings to undefined
+      // Helper function to clean empty strings to empty string (not undefined)
       const cleanValue = (value: string) => {
-        const trimmed = value.trim();
-        return trimmed ? trimmed : undefined;
+        return value.trim();
       };
 
       const payload = {
@@ -107,7 +106,12 @@ const PrescriptionCreate = () => {
         notes: cleanValue(notes),
       };
 
+      console.log(
+        "📤 Sending prescription payload:",
+        JSON.stringify(payload, null, 2)
+      );
       const res = await StaffAPI.prescriptions.create(payload);
+      console.log("✅ Prescription created:", res);
       setResult(res);
       setShowSuccess(true);
 
