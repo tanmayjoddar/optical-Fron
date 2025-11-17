@@ -221,6 +221,9 @@ export default function BulkOperations() {
   ) => {
     const newItems = [...distItems];
     const numValue = typeof value === "string" ? parseFloat(value) : value;
+    
+    console.log(`Updating row ${index} field ${field} with value:`, numValue);
+    
     newItems[index] = { ...newItems[index], [field]: numValue };
 
     if (field === "quantity" || field === "unitPrice") {
@@ -228,10 +231,13 @@ export default function BulkOperations() {
         (newItems[index].quantity || 0) * (newItems[index].unitPrice || 0);
     }
 
+    console.log(`Updated item row ${index}:`, newItems[index]);
     setDistItems(newItems);
   };
 
   const validateDistItems = (): boolean => {
+    console.log("Validating dist items:", distItems);
+    
     if (distItems.length === 0) {
       toast.error("Add at least one item");
       return false;
@@ -239,35 +245,51 @@ export default function BulkOperations() {
 
     for (let i = 0; i < distItems.length; i++) {
       const item = distItems[i];
+      console.log(`Validating row ${i}:`, item);
+      
       if (!item.retailerShopId || item.retailerShopId === 0) {
         toast.error(`Row ${i + 1}: Select a shop`);
+        console.log(`Row ${i + 1} failed: retailerShopId is ${item.retailerShopId}`);
         return false;
       }
       if (!item.productId || item.productId === 0) {
         toast.error(`Row ${i + 1}: Select a product`);
+        console.log(`Row ${i + 1} failed: productId is ${item.productId}`);
         return false;
       }
       if (!item.quantity || item.quantity <= 0) {
         toast.error(`Row ${i + 1}: Enter valid quantity`);
+        console.log(`Row ${i + 1} failed: quantity is ${item.quantity}`);
         return false;
       }
       if (!item.unitPrice || item.unitPrice <= 0) {
         toast.error(`Row ${i + 1}: Enter valid unit price`);
+        console.log(`Row ${i + 1} failed: unitPrice is ${item.unitPrice}`);
         return false;
       }
     }
+    console.log("All validations passed");
     return true;
   };
 
   const handleDistSubmit = async () => {
-    if (!validateDistItems()) return;
+    console.log("Distribution submit clicked. distItems:", distItems);
+    
+    if (!validateDistItems()) {
+      console.log("Validation failed");
+      return;
+    }
 
     try {
       setDistLoading(true);
+      console.log("Sending bulk distribution request with:", distItems);
+      
       const response = (await RetailerAPI.bulk.distribute({
         distributions: distItems,
       })) as unknown as BulkDistributionResponse;
 
+      console.log("Distribution response:", response);
+      
       setDistResult(response);
       setShowDistResult(true);
 
@@ -293,6 +315,7 @@ export default function BulkOperations() {
         ]);
       }
     } catch (e) {
+      console.error("Distribution error:", e);
       toast.error(
         String((e as Record<string, unknown>).message) ||
           "Failed to create bulk distributions"
