@@ -824,6 +824,13 @@ function ProductsTable({
                       </span>
                     )}
                   </div>
+                  {/* Show internal IDs for easier debugging */}
+                  <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                    <span className="font-mono">ID: {p.id}</span>
+                    {p.product?.id != null && (
+                      <span className="font-mono">PID: {p.product.id}</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Company & Type */}
