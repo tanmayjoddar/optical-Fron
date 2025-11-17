@@ -251,20 +251,43 @@ export interface RetailerProductRecord {
   id: number;
   retailerId?: number;
   productId: number;
-  wholesalePrice: number;
-  retailPrice?: number;
+  sku?: string;
+  name?: string;
+  description?: string;
+  companyName?: string;
+  companyDescription?: string;
+  eyewearType?: string;
+  frameType?: string;
+  material?: string;
+  color?: string;
+  size?: string;
+  model?: string;
+  barcode?: string;
+  basePrice?: number;
+  sellingPrice?: number;
+  quantity?: number;
+  minStockLevel?: number;
+  maxStockLevel?: number;
   totalStock?: number;
   allocatedStock?: number;
   availableStock?: number;
+  stockStatus?: string;
+  stockValue?: number;
+  lastUpdated?: string;
   isActive?: boolean;
+  wholesalePrice?: number;
+  retailPrice?: number;
   product?: {
     id: number;
     name: string;
+    sku?: string;
+    basePrice?: number;
+    description?: string;
     eyewearType?: string;
-    company?: { name?: string };
+    frameType?: string;
+    barcode?: string;
+    company?: { id?: number; name?: string };
   };
-  stockStatus?: string;
-  stockValue?: number;
 }
 export interface RetailerProductsListResponse {
   products: RetailerProductRecord[];

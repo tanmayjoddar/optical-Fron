@@ -573,14 +573,40 @@ function ProductsTable({
   });
   type ProductRow = {
     id: number;
-    product?: { name?: string; company?: { name?: string } } | null;
+    sku?: string;
+    name?: string;
+    description?: string;
+    product?: {
+      id?: number;
+      name?: string;
+      sku?: string;
+      description?: string;
+      eyewearType?: string;
+      frameType?: string;
+      barcode?: string;
+      company?: { id?: number; name?: string };
+    } | null;
+    companyName?: string;
+    eyewearType?: string;
+    frameType?: string;
+    material?: string;
+    color?: string;
+    size?: string;
+    model?: string;
+    barcode?: string;
+    basePrice?: number;
+    sellingPrice?: number;
     totalStock?: number;
     availableStock?: number;
     allocatedStock?: number;
-    retailPrice?: number; // backend field per docs (retailPrice)
+    minStockLevel?: number;
+    maxStockLevel?: number;
+    retailPrice?: number;
     wholesalePrice?: number;
     stockStatus?: string;
     stockValue?: number;
+    lastUpdated?: string;
+    isActive?: boolean;
   };
   const [data, setData] = useState<{
     products: ProductRow[];
@@ -756,105 +782,255 @@ function ProductsTable({
         </Alert>
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-muted-foreground">
-                  <th className="py-2 pr-4">Product</th>
-                  <th className="py-2 pr-4">Company</th>
-                  <th className="py-2 pr-4">Total</th>
-                  <th className="py-2 pr-4">Available</th>
-                  <th className="py-2 pr-4">Allocated</th>
-                  <th className="py-2 pr-4">Retail Price</th>
-                  <th className="py-2 pr-4">Wholesale</th>
-                  <th className="py-2 pr-4">Stock Value</th>
-                  <th className="py-2 pr-4">Status</th>
-                  <th className="py-2 pr-4">Active</th>
-                  <th className="py-2 pr-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(data.products ?? []).map((p: ProductRow) => (
-                  <tr key={p.id} className="border-t">
-                    <td
-                      className="py-2 pr-4 font-medium underline-offset-2 hover:underline cursor-pointer"
-                      onClick={() => openDetail(p)}
-                    >
-                      {p.product?.name}
-                    </td>
-                    <td className="py-2 pr-4">{p.product?.company?.name}</td>
-                    <td className="py-2 pr-4">
-                      {p.totalStock ??
-                        (p.availableStock ?? 0) + (p.allocatedStock ?? 0)}
-                    </td>
-                    <td className="py-2 pr-4">{p.availableStock}</td>
-                    <td className="py-2 pr-4">{p.allocatedStock}</td>
-                    <td className="py-2 pr-4">
-                      ₹{p.retailPrice?.toLocaleString?.()}
-                    </td>
-                    <td className="py-2 pr-4">
-                      ₹{p.wholesalePrice?.toLocaleString?.()}
-                    </td>
-                    <td className="py-2 pr-4">
-                      ₹{p.stockValue?.toLocaleString?.()}
-                    </td>
-                    <td className="py-2 pr-4">
-                      {p.stockStatus ? (
-                        <span
-                          className={`inline-block rounded px-2 py-0.5 text-xs font-medium bg-muted/60`}
-                        >
-                          {p.stockStatus}
-                        </span>
-                      ) : null}
-                    </td>
-                    <td className="py-2 pr-4">
-                      <span
-                        className={`inline-block rounded px-2 py-0.5 text-xs ${"bg-muted/60"}`}
-                      >
-                        {(p as Record<string, unknown>).isActive === false
-                          ? "No"
-                          : "Yes"}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {(data.products ?? []).map((p: ProductRow) => (
+              <div
+                key={p.id}
+                className="border rounded-lg p-3 bg-card hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => openDetail(p)}
+              >
+                {/* Header: Product Name + SKU */}
+                <div className="mb-2 pb-2 border-b">
+                  <div className="font-semibold text-sm line-clamp-2 mb-1">
+                    {p.name || p.product?.name || "—"}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground gap-2">
+                    <span className="font-mono">
+                      SKU: {p.sku || p.product?.sku || "—"}
+                    </span>
+                    {p.barcode && (
+                      <span className="font-mono truncate" title={p.barcode}>
+                        BC: {p.barcode.slice(-6)}
                       </span>
-                    </td>
-                    <td className="py-2 pr-4 space-x-2 whitespace-nowrap">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() =>
-                          setEditing({
-                            open: true,
-                            id: p.id,
-                            wholesalePrice: String(p.wholesalePrice ?? ""),
-                            retailPrice: String(p.retailPrice ?? ""),
-                            isActive: true,
-                          })
-                        }
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() =>
-                          setStockAdj({
-                            open: true,
-                            id: p.id,
-                            quantity: "",
-                            type: "ADD",
-                            reason: "",
-                            costPrice: "",
-                            supplier: "",
-                            saving: false,
-                          })
-                        }
-                      >
-                        Stock
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    )}
+                  </div>
+                </div>
+
+                {/* Company & Type */}
+                <div className="grid grid-cols-2 gap-2 mb-2 text-xs">
+                  <div>
+                    <div className="text-muted-foreground font-medium">
+                      Company
+                    </div>
+                    <div className="text-sm">
+                      {p.companyName || p.product?.company?.name || "—"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground font-medium">
+                      Type
+                    </div>
+                    <span className="inline-block px-2 py-0.5 rounded-sm bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-medium">
+                      {p.eyewearType || p.product?.eyewearType || "—"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Specifications */}
+                {(p.frameType ||
+                  p.material ||
+                  p.color ||
+                  p.size ||
+                  p.model) && (
+                  <div className="mb-2 pb-2 border-b text-xs space-y-1">
+                    <div className="text-muted-foreground font-medium">
+                      Specifications
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 text-xs">
+                      {p.frameType && (
+                        <div>
+                          <span className="text-muted-foreground">Frame:</span>{" "}
+                          {p.frameType}
+                        </div>
+                      )}
+                      {p.material && (
+                        <div>
+                          <span className="text-muted-foreground">
+                            Material:
+                          </span>{" "}
+                          {p.material}
+                        </div>
+                      )}
+                      {p.color && (
+                        <div>
+                          <span className="text-muted-foreground">Color:</span>{" "}
+                          {p.color}
+                        </div>
+                      )}
+                      {p.size && (
+                        <div>
+                          <span className="text-muted-foreground">Size:</span>{" "}
+                          {p.size}
+                        </div>
+                      )}
+                      {p.model && (
+                        <div>
+                          <span className="text-muted-foreground">Model:</span>{" "}
+                          {p.model}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Stock Metrics */}
+                <div className="mb-2 pb-2 border-b text-xs">
+                  <div className="text-muted-foreground font-medium mb-1">
+                    Stock
+                  </div>
+                  <div className="grid grid-cols-3 gap-1">
+                    <div className="bg-muted/30 p-1.5 rounded">
+                      <div className="text-muted-foreground text-[10px]">
+                        Total
+                      </div>
+                      <div className="font-semibold">
+                        {p.totalStock ??
+                          (p.availableStock ?? 0) + (p.allocatedStock ?? 0)}
+                      </div>
+                    </div>
+                    <div className="bg-green-50 dark:bg-green-900/20 p-1.5 rounded">
+                      <div className="text-green-700 dark:text-green-300 text-[10px]">
+                        Available
+                      </div>
+                      <div className="font-semibold text-green-700 dark:text-green-300">
+                        {p.availableStock ?? 0}
+                      </div>
+                    </div>
+                    <div className="bg-orange-50 dark:bg-orange-900/20 p-1.5 rounded">
+                      <div className="text-orange-700 dark:text-orange-300 text-[10px]">
+                        Allocated
+                      </div>
+                      <div className="font-semibold text-orange-700 dark:text-orange-300">
+                        {p.allocatedStock ?? 0}
+                      </div>
+                    </div>
+                  </div>
+                  {(p.minStockLevel || p.maxStockLevel) && (
+                    <div className="grid grid-cols-2 gap-1 mt-1">
+                      {p.minStockLevel && (
+                        <div className="text-muted-foreground text-[10px]">
+                          Min: {p.minStockLevel}
+                        </div>
+                      )}
+                      {p.maxStockLevel && (
+                        <div className="text-muted-foreground text-[10px]">
+                          Max: {p.maxStockLevel}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Pricing */}
+                <div className="mb-2 pb-2 border-b text-xs">
+                  <div className="text-muted-foreground font-medium mb-1">
+                    Pricing
+                  </div>
+                  <div className="space-y-1">
+                    {p.basePrice && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Base:</span>
+                        <span>₹{p.basePrice?.toLocaleString?.()}</span>
+                      </div>
+                    )}
+                    {p.wholesalePrice && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Wholesale:
+                        </span>
+                        <span className="font-semibold">
+                          ₹{p.wholesalePrice?.toLocaleString?.()}
+                        </span>
+                      </div>
+                    )}
+                    {p.retailPrice && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Retail:</span>
+                        <span className="font-semibold">
+                          ₹{p.retailPrice?.toLocaleString?.()}
+                        </span>
+                      </div>
+                    )}
+                    {p.sellingPrice && p.sellingPrice !== p.retailPrice && (
+                      <div className="flex justify-between text-blue-600 dark:text-blue-400">
+                        <span>Selling:</span>
+                        <span className="font-semibold">
+                          ₹{p.sellingPrice?.toLocaleString?.()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Stock Value & Status */}
+                <div className="flex items-center justify-between text-xs mb-2">
+                  <div>
+                    <div className="text-muted-foreground">Value</div>
+                    <div className="font-semibold">
+                      ₹{p.stockValue?.toLocaleString?.() || "0"}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    {p.stockStatus && (
+                      <div className="inline-block rounded px-2 py-0.5 text-xs font-medium bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 mb-1 block">
+                        {p.stockStatus}
+                      </div>
+                    )}
+                    {p.isActive === false ? (
+                      <span className="inline-block rounded px-2 py-0.5 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-medium text-xs">
+                        Inactive
+                      </span>
+                    ) : (
+                      <span className="inline-block rounded px-2 py-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-medium text-xs">
+                        Active
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div
+                  className="flex gap-2 pt-2 border-t"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 text-xs"
+                    onClick={() =>
+                      setEditing({
+                        open: true,
+                        id: p.id,
+                        wholesalePrice: String(p.wholesalePrice ?? ""),
+                        retailPrice: String(p.retailPrice ?? ""),
+                        isActive: p.isActive !== false,
+                      })
+                    }
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 text-xs"
+                    onClick={() =>
+                      setStockAdj({
+                        open: true,
+                        id: p.id,
+                        quantity: "",
+                        type: "ADD",
+                        reason: "",
+                        costPrice: "",
+                        supplier: "",
+                        saving: false,
+                      })
+                    }
+                  >
+                    Stock
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
           {data.pagination && (
             <div className="flex items-center justify-between mt-4 text-xs">
@@ -1034,94 +1210,261 @@ function ProductsTable({
 
       {/* Product Detail Drawer (Sheet) */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-h-[85vh] overflow-y-auto max-w-xl">
           <DialogHeader>
-            <DialogTitle>
-              {detailProduct?.product?.name || "Product Detail"}
+            <DialogTitle className="text-lg font-bold">
+              {detailProduct?.name ||
+                detailProduct?.product?.name ||
+                "Product Detail"}
             </DialogTitle>
           </DialogHeader>
           {detailLoading && <Skeleton className="h-20 w-full" />}
           {!detailLoading && detailProduct && (
             <div className="space-y-4 text-sm">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="clay p-3 rounded-lg">
-                  <div className="text-[10px] uppercase text-muted-foreground">
-                    Company
-                  </div>
-                  <div>{detailProduct.product?.company?.name || "—"}</div>
-                </div>
-                <div className="clay p-3 rounded-lg">
-                  <div className="text-[10px] uppercase text-muted-foreground">
-                    Status
-                  </div>
-                  <div>{detailProduct.stockStatus || "—"}</div>
-                </div>
-                <div className="clay p-3 rounded-lg">
-                  <div className="text-[10px] uppercase text-muted-foreground">
-                    Available
-                  </div>
-                  <div>{detailProduct.availableStock ?? "—"}</div>
-                </div>
-                <div className="clay p-3 rounded-lg">
-                  <div className="text-[10px] uppercase text-muted-foreground">
-                    Allocated
-                  </div>
-                  <div>{detailProduct.allocatedStock ?? "—"}</div>
-                </div>
-                <div className="clay p-3 rounded-lg">
-                  <div className="text-[10px] uppercase text-muted-foreground">
-                    Retail
+              {/* Product Identification */}
+              <div className="border-b pb-3">
+                <h3 className="text-xs font-semibold mb-2 uppercase text-muted-foreground">
+                  Product Info
+                </h3>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {(detailProduct.sku || detailProduct.product?.sku) && (
+                    <div>
+                      <div className="text-muted-foreground">SKU</div>
+                      <div className="font-mono font-semibold">
+                        {detailProduct.sku || detailProduct.product?.sku}
+                      </div>
+                    </div>
+                  )}
+                  {(detailProduct.barcode ||
+                    detailProduct.product?.barcode) && (
+                    <div>
+                      <div className="text-muted-foreground">Barcode</div>
+                      <div className="font-mono font-semibold break-all">
+                        {detailProduct.barcode ||
+                          detailProduct.product?.barcode}
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-muted-foreground">Company</div>
+                    <div className="font-semibold">
+                      {detailProduct.companyName ||
+                        detailProduct.product?.company?.name ||
+                        "—"}
+                    </div>
                   </div>
                   <div>
-                    ₹{detailProduct.retailPrice?.toLocaleString?.() || "—"}
-                  </div>
-                </div>
-                <div className="clay p-3 rounded-lg">
-                  <div className="text-[10px] uppercase text-muted-foreground">
-                    Wholesale
-                  </div>
-                  <div>
-                    ₹{detailProduct.wholesalePrice?.toLocaleString?.() || "—"}
+                    <div className="text-muted-foreground">Type</div>
+                    <div className="font-semibold">
+                      {detailProduct.eyewearType ||
+                        detailProduct.product?.eyewearType ||
+                        "—"}
+                    </div>
                   </div>
                 </div>
               </div>
-              <div>
-                <h4 className="text-xs font-medium mb-2 text-muted-foreground uppercase tracking-wide">
-                  Pricing History
-                </h4>
-                <p className="text-xs text-muted-foreground">
-                  (Not yet implemented)
-                </p>
+
+              {/* Product Specifications */}
+              <div className="border-b pb-3">
+                <h3 className="text-xs font-semibold mb-2 uppercase text-muted-foreground">
+                  Specifications
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {detailProduct.frameType && (
+                    <div className="bg-muted/30 p-2 rounded">
+                      <div className="text-[10px] uppercase text-muted-foreground">
+                        Frame Type
+                      </div>
+                      <div className="font-medium">
+                        {detailProduct.frameType}
+                      </div>
+                    </div>
+                  )}
+                  {detailProduct.material && (
+                    <div className="bg-muted/30 p-2 rounded">
+                      <div className="text-[10px] uppercase text-muted-foreground">
+                        Material
+                      </div>
+                      <div className="font-medium">
+                        {detailProduct.material}
+                      </div>
+                    </div>
+                  )}
+                  {detailProduct.color && (
+                    <div className="bg-muted/30 p-2 rounded">
+                      <div className="text-[10px] uppercase text-muted-foreground">
+                        Color
+                      </div>
+                      <div className="font-medium">{detailProduct.color}</div>
+                    </div>
+                  )}
+                  {detailProduct.size && (
+                    <div className="bg-muted/30 p-2 rounded">
+                      <div className="text-[10px] uppercase text-muted-foreground">
+                        Size
+                      </div>
+                      <div className="font-medium">{detailProduct.size}</div>
+                    </div>
+                  )}
+                  {detailProduct.model && (
+                    <div className="bg-muted/30 p-2 rounded">
+                      <div className="text-[10px] uppercase text-muted-foreground">
+                        Model
+                      </div>
+                      <div className="font-medium">{detailProduct.model}</div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div>
-                <h4 className="text-xs font-medium mb-2 text-muted-foreground uppercase tracking-wide">
-                  Stock Breakdown
-                </h4>
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="text-left text-muted-foreground">
-                      <th className="py-1 pr-4">Metric</th>
-                      <th className="py-1 pr-4">Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-t">
-                      <td className="py-1 pr-4">Total</td>
-                      <td className="py-1 pr-4">
-                        {detailProduct.totalStock ??
-                          (detailProduct.availableStock ?? 0) +
-                            (detailProduct.allocatedStock ?? 0)}
-                      </td>
-                    </tr>
-                    <tr className="border-t">
-                      <td className="py-1 pr-4">Stock Value</td>
-                      <td className="py-1 pr-4">
-                        ₹{detailProduct.stockValue?.toLocaleString?.() || 0}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+
+              {/* Pricing */}
+              <div className="border-b pb-3">
+                <h3 className="text-xs font-semibold mb-2 uppercase text-muted-foreground">
+                  Pricing
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {detailProduct.basePrice && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                      <div className="text-[10px] uppercase text-blue-700 dark:text-blue-300">
+                        Base Price
+                      </div>
+                      <div className="font-semibold text-sm">
+                        ₹{detailProduct.basePrice?.toLocaleString?.()}
+                      </div>
+                    </div>
+                  )}
+                  {detailProduct.wholesalePrice && (
+                    <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                      <div className="text-[10px] uppercase text-green-700 dark:text-green-300">
+                        Wholesale
+                      </div>
+                      <div className="font-semibold text-sm">
+                        ₹{detailProduct.wholesalePrice?.toLocaleString?.()}
+                      </div>
+                    </div>
+                  )}
+                  {detailProduct.retailPrice && (
+                    <div className="bg-orange-50 dark:bg-orange-900/20 p-2 rounded">
+                      <div className="text-[10px] uppercase text-orange-700 dark:text-orange-300">
+                        Retail
+                      </div>
+                      <div className="font-semibold text-sm">
+                        ₹{detailProduct.retailPrice?.toLocaleString?.()}
+                      </div>
+                    </div>
+                  )}
+                  {detailProduct.sellingPrice &&
+                    detailProduct.sellingPrice !==
+                      detailProduct.retailPrice && (
+                      <div className="bg-purple-50 dark:bg-purple-900/20 p-2 rounded">
+                        <div className="text-[10px] uppercase text-purple-700 dark:text-purple-300">
+                          Selling
+                        </div>
+                        <div className="font-semibold text-sm">
+                          ₹{detailProduct.sellingPrice?.toLocaleString?.()}
+                        </div>
+                      </div>
+                    )}
+                </div>
               </div>
+
+              {/* Inventory */}
+              <div className="border-b pb-3">
+                <h3 className="text-xs font-semibold mb-2 uppercase text-muted-foreground">
+                  Inventory
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-muted/30 p-2 rounded">
+                    <div className="text-[10px] uppercase text-muted-foreground">
+                      Total Stock
+                    </div>
+                    <div className="font-semibold text-lg">
+                      {detailProduct.totalStock ??
+                        (detailProduct.availableStock ?? 0) +
+                          (detailProduct.allocatedStock ?? 0)}
+                    </div>
+                  </div>
+                  <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                    <div className="text-[10px] uppercase text-green-700 dark:text-green-300">
+                      Available
+                    </div>
+                    <div className="font-semibold text-lg text-green-700 dark:text-green-300">
+                      {detailProduct.availableStock ?? 0}
+                    </div>
+                  </div>
+                  <div className="bg-orange-50 dark:bg-orange-900/20 p-2 rounded">
+                    <div className="text-[10px] uppercase text-orange-700 dark:text-orange-300">
+                      Allocated
+                    </div>
+                    <div className="font-semibold text-lg text-orange-700 dark:text-orange-300">
+                      {detailProduct.allocatedStock ?? 0}
+                    </div>
+                  </div>
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-2 rounded">
+                    <div className="text-[10px] uppercase text-purple-700 dark:text-purple-300">
+                      Stock Value
+                    </div>
+                    <div className="font-semibold text-sm">
+                      ₹{detailProduct.stockValue?.toLocaleString?.() || "0"}
+                    </div>
+                  </div>
+                  {detailProduct.minStockLevel && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                      <div className="text-[10px] uppercase text-blue-700 dark:text-blue-300">
+                        Min Level
+                      </div>
+                      <div className="font-semibold">
+                        {detailProduct.minStockLevel}
+                      </div>
+                    </div>
+                  )}
+                  {detailProduct.maxStockLevel && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                      <div className="text-[10px] uppercase text-blue-700 dark:text-blue-300">
+                        Max Level
+                      </div>
+                      <div className="font-semibold">
+                        {detailProduct.maxStockLevel}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="border-b pb-3">
+                <h3 className="text-xs font-semibold mb-2 uppercase text-muted-foreground">
+                  Status
+                </h3>
+                <div className="flex flex-col gap-2">
+                  {detailProduct.stockStatus && (
+                    <div className="inline-block w-fit">
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300">
+                        {detailProduct.stockStatus}
+                      </span>
+                    </div>
+                  )}
+                  <div className="inline-block w-fit">
+                    {detailProduct.isActive === false ? (
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300">
+                        ⊘ Inactive
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">
+                        ✓ Active
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Metadata */}
+              {detailProduct.lastUpdated && (
+                <div className="text-xs text-muted-foreground">
+                  Last updated:{" "}
+                  {new Date(detailProduct.lastUpdated).toLocaleString()}
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
