@@ -616,9 +616,29 @@ function ProductsTable({
   const [detailProduct, setDetailProduct] = useState<ProductRow | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const openDetail = async (p: ProductRow) => {
+    // Show the product immediately with cached data
     setDetailProduct(p);
     setDetailOpen(true);
-    setDetailLoading(false); // placeholder for potential future fetch
+    setDetailLoading(true);
+    try {
+      // Fetch fresh data for this specific product
+      const freshProduct = await RetailerAPI.inventory.getProduct(p.id);
+      setDetailProduct(freshProduct);
+      console.log("Loaded fresh product data:", {
+        id: freshProduct.id,
+        sku: freshProduct.sku,
+        name: freshProduct.name,
+        sellingPrice: freshProduct.sellingPrice,
+        basePrice: freshProduct.basePrice,
+        totalStock: freshProduct.totalStock,
+        availableStock: freshProduct.availableStock,
+      });
+    } catch (e) {
+      console.error("Failed to load fresh product data:", e);
+      // Fall back to the cached product if API call fails
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
   const fetchData = async (pg = 1) => {
@@ -951,14 +971,16 @@ function ProductsTable({
                         </span>
                       </div>
                     )}
-                    {p.sellingPrice && p.sellingPrice !== p.retailPrice && (
-                      <div className="flex justify-between text-blue-600 dark:text-blue-400">
-                        <span>Selling:</span>
-                        <span className="font-semibold">
-                          ₹{p.sellingPrice?.toLocaleString?.()}
-                        </span>
-                      </div>
-                    )}
+                    {p.sellingPrice &&
+                      (p.retailPrice === undefined ||
+                        p.sellingPrice !== p.retailPrice) && (
+                        <div className="flex justify-between text-blue-600 dark:text-blue-400">
+                          <span>Selling:</span>
+                          <span className="font-semibold">
+                            ₹{p.sellingPrice?.toLocaleString?.()}
+                          </span>
+                        </div>
+                      )}
                   </div>
                 </div>
 
@@ -1354,8 +1376,9 @@ function ProductsTable({
                     </div>
                   )}
                   {detailProduct.sellingPrice &&
-                    detailProduct.sellingPrice !==
-                      detailProduct.retailPrice && (
+                    (detailProduct.retailPrice === undefined ||
+                      detailProduct.sellingPrice !==
+                        detailProduct.retailPrice) && (
                       <div className="bg-purple-50 dark:bg-purple-900/20 p-2 rounded">
                         <div className="text-[10px] uppercase text-purple-700 dark:text-purple-300">
                           Selling

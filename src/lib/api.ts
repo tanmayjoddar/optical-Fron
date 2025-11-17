@@ -38,6 +38,7 @@ import type {
   UpdateProductRequest,
   UpdateProductResponse,
   RetailerProductsListResponse,
+  RetailerProductRecord,
   AddRetailerProductRequest,
   AddRetailerProductResponse,
   UpdateRetailerProductRequest,
@@ -791,6 +792,10 @@ export const RetailerAPI = {
       retailerApi
         .get("/inventory/my-products", { params })
         .then((r) => r.data as RetailerProductsListResponse),
+    getProduct: (retailerProductId: number): Promise<RetailerProductRecord> =>
+      retailerApi
+        .get(`/inventory/my-products/${retailerProductId}`)
+        .then((r) => r.data as RetailerProductRecord),
     addRetailerProduct: (
       data: AddRetailerProductRequest
     ): Promise<AddRetailerProductResponse> =>
@@ -885,7 +890,110 @@ export const RetailerAPI = {
     // Delivery/payment status update endpoints are not in the official 31 documented endpoints; removed for spec alignment.
   },
 
-  // Reports & Analytics
+  // Bulk Operations
+  bulk: {
+    getTemplate: (): Promise<
+      Array<{
+        sku: string;
+        name: string;
+        description: string;
+        companyName: string;
+        companyDescription: string;
+        eyewearType: string;
+        frameType: string | null;
+        material: string;
+        color: string;
+        size: string | null;
+        model: string;
+        barcode: string;
+        basePrice: number;
+        sellingPrice: number;
+        quantity: number;
+        minStockLevel: number;
+        maxStockLevel: number;
+      }>
+    > => retailerApi.get("/bulk/template").then((r) => r.data),
+
+    uploadProducts: (data: {
+      products: Array<{
+        sku: string;
+        name: string;
+        description: string;
+        companyName: string;
+        companyDescription: string;
+        eyewearType: string;
+        frameType?: string | null;
+        material: string;
+        color: string;
+        size?: string | null;
+        model: string;
+        barcode: string;
+        basePrice: number;
+        sellingPrice: number;
+        quantity: number;
+        minStockLevel: number;
+        maxStockLevel: number;
+      }>;
+    }): Promise<{
+      message: string;
+      summary: { total: number; successful: number; failed: number };
+      products: Array<{
+        id: number;
+        name: string;
+        sku: string;
+        company: string;
+        quantity: number;
+        sellingPrice: number;
+      }>;
+      errors: Array<{
+        row: number;
+        product: string;
+        errors: string[];
+      }>;
+      hasMoreProducts: boolean;
+      hasMoreErrors: boolean;
+    }> => retailerApi.post("/bulk/products/upload", data).then((r) => r.data),
+
+    updateInventory: (data: {
+      updates: Array<{
+        sku: string;
+        quantity?: number;
+        sellingPrice?: number;
+        minStockLevel?: number;
+        maxStockLevel?: number;
+      }>;
+    }): Promise<{
+      message: string;
+      summary: { total: number; successful: number; failed: number };
+      errors: Array<{
+        row: number;
+        sku: string;
+        error: string;
+      }>;
+    }> => retailerApi.post("/bulk/inventory/update", data).then((r) => r.data),
+
+    distribute: (data: {
+      distributions: Array<{
+        retailerShopId: number;
+        productId: number;
+        quantity: number;
+        unitPrice: number;
+        totalPrice: number;
+      }>;
+    }): Promise<{
+      message: string;
+      summary: { total: number; successful: number; failed: number };
+      distributions: Array<{
+        distributionId: number;
+        shopId: number;
+        productId: number;
+        quantity: number;
+        status: string;
+      }>;
+      errors: Array<{ row: number; error: string }>;
+    }> =>
+      retailerApi.post("/bulk/distributions/create", data).then((r) => r.data),
+  },
   reports: {
     getAll: (
       params: { page?: number; limit?: number } = {}

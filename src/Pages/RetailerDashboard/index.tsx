@@ -4,6 +4,7 @@ import RetailerOverview from "./pages/RetailerOverview.tsx";
 import RetailerInventory from "./pages/RetailerInventory.tsx";
 import RetailerShops from "./pages/RetailerShops.tsx";
 import RetailerDistributions from "./pages/RetailerDistributions.tsx";
+import BulkOperations from "./pages/BulkOperations.tsx";
 import RetailerReports from "./pages/RetailerReports.tsx";
 import RetailerProfile from "./pages/RetailerProfile.tsx";
 import { RetailerAPI } from "@/lib/api";
@@ -92,6 +93,16 @@ export default function RetailerDashboard() {
             Distributions
           </NavLink>
           <NavLink
+            to="/retailer-dashboard/bulk-distributions"
+            className={({ isActive }) =>
+              `block px-3 py-2 rounded-md hover:bg-muted/40 ${
+                isActive ? "bg-muted/50 font-medium" : ""
+              }`
+            }
+          >
+            Bulk Distributions
+          </NavLink>
+          <NavLink
             to="/retailer-dashboard/reports"
             className={({ isActive }) =>
               `block px-3 py-2 rounded-md hover:bg-muted/40 ${
@@ -124,6 +135,7 @@ export default function RetailerDashboard() {
               <Route path="inventory" element={<RetailerInventory />} />
               <Route path="shops" element={<RetailerShops />} />
               <Route path="distributions" element={<RetailerDistributions />} />
+              <Route path="bulk-distributions" element={<BulkOperations />} />
               <Route path="reports" element={<RetailerReports />} />
               <Route path="profile" element={<RetailerProfile />} />
               <Route path="*" element={<Navigate to="." replace />} />
