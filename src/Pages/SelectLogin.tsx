@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { useAuth } from "../hooks/useAuth";
 import { login } from "../store/authSlice";
 import type { AppDispatch } from "../store";
- 
+
 // shadcn/ui
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ type LoginFormInputs = {
 };
 
 type LoginType = "staff" | "shopAdmin" | "retailer" | "doctor" | "admin";
+type ShopAdminMode = "login" | "register";
 
 function Login() {
   const dispatch = useDispatch<AppDispatch>();
@@ -31,6 +32,7 @@ function Login() {
   const { token, type, loading, error } = useAuth();
 
   const [selectedType, setSelectedType] = useState<LoginType>("staff");
+  const [shopAdminMode, setShopAdminMode] = useState<ShopAdminMode>("login");
 
   const {
     register,
@@ -46,9 +48,11 @@ function Login() {
   useEffect(() => {
     if (token && type) {
       if (type === "staff") navigate("/staff-dashboard", { replace: true });
-      if (type === "shopAdmin") navigate("/shop-admin-dashboard", { replace: true });
-  if (type === "retailer") navigate("/retailer-dashboard", { replace: true });
-  if (type === "doctor") navigate("/doctor-dashboard", { replace: true });
+      if (type === "shopAdmin")
+        navigate("/shop-admin-dashboard", { replace: true });
+      if (type === "retailer")
+        navigate("/retailer-dashboard", { replace: true });
+      if (type === "doctor") navigate("/doctor-dashboard", { replace: true });
     }
   }, [token, type, navigate]);
 
@@ -76,89 +80,251 @@ function Login() {
       className="relative min-h-screen"
       style={{
         backgroundImage: `url('/src/assets/gls.png')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
       <div className="absolute inset-0 bg-black/20" />
       <div className="relative flex min-h-screen items-center justify-center px-4">
-        <form className="w-full max-w-md glass-card rounded-2xl p-6 sm:p-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-        <div className="space-y-2 text-center">
-          <h2 className="text-2xl font-bold text-brand-gradient">Sign In</h2>
-          <p className="text-sm text-muted-foreground">Choose a role and enter your credentials</p>
-        </div>
+        <form
+          className="w-full max-w-md glass-card rounded-2xl p-6 sm:p-8 space-y-6"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div className="space-y-2 text-center">
+            <h2 className="text-2xl font-bold text-brand-gradient">
+              {selectedType === "shopAdmin"
+                ? shopAdminMode === "register"
+                  ? "Create Shop Admin Account"
+                  : "Sign In"
+                : "Sign In"}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {selectedType === "shopAdmin" && shopAdminMode === "register"
+                ? "Register your shop and create an admin account"
+                : "Choose a role and enter your credentials"}
+            </p>
+          </div>
 
-        {/* Type selector */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium">Login as</label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button type="button" variant="outline" className="w-full justify-between clay">
-                {typeLabel}
-                <svg xmlns="http://www.w3.org/2000/svg" className="size-4 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          {/* Type selector */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium">Login as</label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-between clay"
+                >
+                  {typeLabel}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="size-4 opacity-70"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full">
+                <DropdownMenuLabel>Select role</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setSelectedType("staff");
+                    setShopAdminMode("login");
+                  }}
+                >
+                  Staff
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setSelectedType("shopAdmin");
+                    setShopAdminMode("login");
+                  }}
+                >
+                  Shop Admin
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setSelectedType("retailer");
+                    setShopAdminMode("login");
+                  }}
+                >
+                  Retailer
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setSelectedType("doctor");
+                    setShopAdminMode("login");
+                  }}
+                >
+                  Doctor
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="opacity-60 pointer-events-none">
+                  Admin (Coming Soon)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Shop Admin Mode Selection */}
+          {selectedType === "shopAdmin" && (
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={shopAdminMode === "login" ? "default" : "outline"}
+                onClick={() => setShopAdminMode("login")}
+                className="flex-1"
+              >
+                Sign In
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-full">
-              <DropdownMenuLabel>Select role</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => setSelectedType("staff")}>Staff</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setSelectedType("shopAdmin")}>Shop Admin</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setSelectedType("retailer")}>Retailer</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setSelectedType("doctor")}>Doctor</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="opacity-60 pointer-events-none">Admin (Coming Soon)</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+              <Button
+                type="button"
+                variant={shopAdminMode === "register" ? "default" : "outline"}
+                onClick={() => setShopAdminMode("register")}
+                className="flex-1"
+              >
+                Register
+              </Button>
+            </div>
+          )}
 
-        {/* Credentials */}
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              autoComplete="email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid email address" },
-              })}
-              className={errors.email ? "border-red-500" : ""}
-            />
-            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              autoComplete="current-password"
-              {...register("password", {
-                required: "Password is required",
-                minLength: { value: 6, message: "Password must be at least 6 characters" },
-              })}
-              className={errors.password ? "border-red-500" : ""}
-            />
-            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
-          </div>
-        </div>
+          {/* For Shop Admin Register, redirect to full register page */}
+          {selectedType === "shopAdmin" && shopAdminMode === "register" && (
+            <div className="text-center py-4">
+              <p className="text-sm text-muted-foreground mb-4">
+                Create your shop admin account with complete details
+              </p>
+              <Button
+                type="button"
+                className="w-full clay-button"
+                onClick={() => navigate("/shop-admin-register")}
+              >
+                Go to Registration Form
+              </Button>
+              <button
+                type="button"
+                onClick={() => setShopAdminMode("login")}
+                className="text-sm underline hover:text-foreground mt-2"
+              >
+                Back to Sign In
+              </button>
+            </div>
+          )}
 
-        {error && <p className="text-xs text-red-500 text-center">{error}</p>}
+          {/* Credentials - only show for login modes */}
+          {!(selectedType === "shopAdmin" && shopAdminMode === "register") && (
+            <>
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium mb-1"
+                  >
+                    Email
+                  </label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Invalid email address",
+                      },
+                    })}
+                    className={errors.email ? "border-red-500" : ""}
+                  />
+                  {errors.email && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium mb-1"
+                  >
+                    Password
+                  </label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 6,
+                        message: "Password must be at least 6 characters",
+                      },
+                    })}
+                    className={errors.password ? "border-red-500" : ""}
+                  />
+                  {errors.password && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.password.message}
+                    </p>
+                  )}
+                </div>
+              </div>
 
-          <Button type="submit" className="w-full clay-button" disabled={loading || selectedType === "admin"}>
-            {loading ? "Signing in..." : `Sign in as ${typeLabel}`}
-          </Button>
-          {/* Quick direct links (optional) */}
-          <div className="pt-2 text-center space-x-2 text-xs text-muted-foreground">
-            <span className="hidden sm:inline">Direct:</span>
-            <button type="button" onClick={() => navigate('/staff-login')} className="underline hover:text-foreground">Staff</button>
-            <button type="button" onClick={() => navigate('/shop-admin-login')} className="underline hover:text-foreground">Shop Admin</button>
-            <button type="button" onClick={() => navigate('/retailer-login')} className="underline hover:text-foreground">Retailer</button>
-            <button type="button" onClick={() => navigate('/doctor-login')} className="underline hover:text-foreground">Doctor</button>
-          </div>
+              {error && (
+                <p className="text-xs text-red-500 text-center">{error}</p>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full clay-button"
+                disabled={loading || selectedType === "admin"}
+              >
+                {loading ? "Signing in..." : `Sign in as ${typeLabel}`}
+              </Button>
+
+              {/* Quick direct links (optional) */}
+              <div className="pt-2 text-center space-x-2 text-xs text-muted-foreground">
+                <span className="hidden sm:inline">Direct:</span>
+                <button
+                  type="button"
+                  onClick={() => navigate("/staff-login")}
+                  className="underline hover:text-foreground"
+                >
+                  Staff
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/shop-admin-login")}
+                  className="underline hover:text-foreground"
+                >
+                  Shop Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/retailer-login")}
+                  className="underline hover:text-foreground"
+                >
+                  Retailer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/doctor-login")}
+                  className="underline hover:text-foreground"
+                >
+                  Doctor
+                </button>
+              </div>
+            </>
+          )}
         </form>
       </div>
     </div>

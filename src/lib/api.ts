@@ -1126,12 +1126,14 @@ shopAdminApi.interceptors.response.use(
     console.error("❌ Shop Admin API Error:", error.config?.url, {
       status: error.response?.status,
       message: error.response?.data?.message || error.message,
+      data: error.response?.data,
       timestamp: new Date().toISOString(),
     });
 
     const message =
       error?.response?.data?.error ||
       error?.response?.data?.message ||
+      error?.response?.data?.details ||
       error.message ||
       "Request failed";
     return Promise.reject(new Error(message));
@@ -1142,6 +1144,21 @@ shopAdminApi.interceptors.response.use(
 // SHOP ADMIN API ENDPOINTS
 // ============================================================================
 export const ShopAdminAPI = {
+  // Auth
+  auth: {
+    register: (data: {
+      name: string;
+      email: string;
+      password: string;
+      shop: {
+        name: string;
+        address: string;
+        phone?: string;
+        email?: string;
+      };
+    }) => shopAdminApi.post("/auth/register", data).then((r) => r.data),
+  },
+
   // Dashboard
   dashboard: {
     getMetrics: (): Promise<import("./types/shopAdmin").ShopAdminMetrics> =>

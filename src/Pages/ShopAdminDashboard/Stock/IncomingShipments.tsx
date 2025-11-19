@@ -187,7 +187,7 @@ const IncomingShipments: React.FC = () => {
   // Initial fetch on mount
   useEffect(() => {
     fetchShipments(1);
-  }, []);
+  }, [fetchShipments]);
 
   // Refetch when filters change
   useEffect(() => {
@@ -197,7 +197,7 @@ const IncomingShipments: React.FC = () => {
     } else {
       fetchShipments(page);
     }
-  }, [statusFilter, limit]);
+  }, [statusFilter, limit, fetchShipments, page]);
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setStatusFilter(e.target.value);
