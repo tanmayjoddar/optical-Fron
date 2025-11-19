@@ -22,6 +22,7 @@ import InventoryStatus from "./Inventory/InventoryStatus";
 import StockIn from "./Inventory/StockIn";
 import AdjustStock from "./Inventory/AdjustStock";
 import StockReceipts from "./Stock/StockReceipts";
+import IncomingShipments from "./Stock/IncomingShipments";
 
 export default function ShopAdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -53,6 +54,10 @@ export default function ShopAdminDashboard() {
               <Route path="inventory/stock-in" element={<StockIn />} />
               <Route path="inventory/adjust" element={<AdjustStock />} />
               <Route path="stock/receipts" element={<StockReceipts />} />
+              <Route
+                path="stock/incoming-shipments"
+                element={<IncomingShipments />}
+              />
               <Route path="reports/low-stock" element={<LowStockAlerts />} />
               <Route path="reports/patients" element={<PatientReport />} />
               <Route

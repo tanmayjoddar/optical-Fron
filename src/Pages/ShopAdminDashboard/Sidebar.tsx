@@ -141,6 +141,12 @@ const navItems: Array<NavItem | NavSection> = [
         icon: Package,
         description: "Verify incoming shipments",
       },
+      {
+        label: "Incoming Shipments",
+        to: "/shop-admin-dashboard/stock/incoming-shipments",
+        icon: Package,
+        description: "Track incoming products",
+      },
     ],
   },
   {
@@ -177,15 +183,32 @@ function SidebarContent() {
     (async () => {
       try {
         const res = await ShopAdminAPI.reports.getInventoryAlerts();
-        const list = Array.isArray(res)
-          ? res
-          : Array.isArray(res?.alerts)
-          ? res.alerts
-          : Array.isArray(res?.data)
-          ? res.data
-          : [];
+        console.log("Sidebar Low Stock Response:", res);
+        
+        // Accept multiple response formats
+        let list: unknown[] = [];
+        if (Array.isArray(res)) {
+          list = res;
+        } else if (res?.alerts && Array.isArray(res.alerts)) {
+          list = res.alerts;
+        } else if (res?.data && Array.isArray(res.data)) {
+          list = res.data;
+        } else if (res?.inventory && Array.isArray(res.inventory)) {
+          list = res.inventory;
+        } else {
+          // Try to find any array in the response
+          for (const key in res) {
+            if (Array.isArray(res[key])) {
+              list = res[key];
+              break;
+            }
+          }
+        }
+        
+        console.log("Sidebar parsed low stock count:", list.length);
         if (!cancelled) setLowStockCount(list.length || 0);
-      } catch {
+      } catch (e) {
+        console.error("Error loading sidebar low stock count:", e);
         if (!cancelled) setLowStockCount(0);
       }
     })();

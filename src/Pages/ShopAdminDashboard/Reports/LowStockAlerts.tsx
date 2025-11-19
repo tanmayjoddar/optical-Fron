@@ -6,10 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 type LowStockItem = {
-  product: { id: number; name: string; sku: string; category: string };
-  currentStock: number;
-  alertLevel: number;
-  lastUpdated: string;
+  product?: { id: number; name: string; sku: string; category: string };
+  id?: number;
+  name?: string;
+  sku?: string;
+  category?: string;
+  currentStock?: number;
+  alertLevel?: number;
+  lastUpdated?: string;
+  [key: string]: unknown;
 };
 
 export default function LowStockAlerts() {
@@ -27,18 +32,34 @@ export default function LowStockAlerts() {
     setLoading(true);
     setError(null);
     try {
-  const res = await ShopAdminAPI.reports.getInventoryAlerts();
-      // Accept either array or envelope {alerts: []}
-      const list: LowStockItem[] = Array.isArray(res)
-        ? res
-        : Array.isArray(res?.alerts)
-          ? res.alerts
-          : Array.isArray(res?.data)
-            ? res.data
-            : [];
+      const res = await ShopAdminAPI.reports.getInventoryAlerts();
+      console.log("Low Stock Alerts Response:", res);
+      
+      // Accept multiple response formats
+      let list: LowStockItem[] = [];
+      if (Array.isArray(res)) {
+        list = res;
+      } else if (res?.alerts && Array.isArray(res.alerts)) {
+        list = res.alerts;
+      } else if (res?.data && Array.isArray(res.data)) {
+        list = res.data;
+      } else if (res?.inventory && Array.isArray(res.inventory)) {
+        list = res.inventory;
+      } else {
+        // Try to find any array in the response
+        for (const key in res) {
+          if (Array.isArray(res[key])) {
+            list = res[key];
+            break;
+          }
+        }
+      }
+      
+      console.log("Parsed Low Stock Items:", list);
       setAlerts(list);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
+      console.error("Error loading low stock alerts:", msg);
       setError(msg);
     } finally {
       setLoading(false);
@@ -50,12 +71,20 @@ export default function LowStockAlerts() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return alerts.filter((a) => {
-      const lowOk = !onlyLowStock || a.currentStock <= a.alertLevel;
+      // Get values from nested or flat structure
+      const name = (a.product?.name || a.name || "").toLowerCase();
+      const sku = (a.product?.sku || a.sku || "").toLowerCase();
+      const category = (a.product?.category || a.category || "").toLowerCase();
+      const current = a.currentStock ?? 0;
+      const alert = a.alertLevel ?? 0;
+      
+      // If onlyLowStock is true, filter by stock level; if false, show all
+      const stockOk = !onlyLowStock || (current <= alert);
       const textOk = q === "" ||
-        a.product.name.toLowerCase().includes(q) ||
-        a.product.sku.toLowerCase().includes(q) ||
-        a.product.category.toLowerCase().includes(q);
-      return lowOk && textOk;
+        name.includes(q) ||
+        sku.includes(q) ||
+        category.includes(q);
+      return stockOk && textOk;
     });
   }, [alerts, query, onlyLowStock]);
 
@@ -106,14 +135,20 @@ export default function LowStockAlerts() {
                 <tr><td colSpan={7} className="py-6 text-center text-muted-foreground">Loading...</td></tr>
               )}
               {!loading && paginated.map((item: LowStockItem) => {
-                const isLow = item.currentStock <= item.alertLevel;
+                const productId = item.product?.id || item.id || 0;
+                const name = item.product?.name || item.name || "—";
+                const sku = item.product?.sku || item.sku || "—";
+                const category = item.product?.category || item.category || "—";
+                const current = item.currentStock ?? 0;
+                const alert = item.alertLevel ?? 0;
+                const isLow = current <= alert;
                 return (
-                  <tr key={item.product.id} className="border-b">
-                    <td>{item.product.name}</td>
-                    <td>{item.product.sku}</td>
-                    <td>{item.product.category}</td>
-                    <td>{item.currentStock}</td>
-                    <td>{item.alertLevel}</td>
+                  <tr key={productId} className="border-b">
+                    <td>{name}</td>
+                    <td>{sku}</td>
+                    <td>{category}</td>
+                    <td>{current}</td>
+                    <td>{alert}</td>
                     <td className={isLow ? "text-amber-600" : "text-green-600"}>{isLow ? "Low" : "OK"}</td>
                     <td>{item.lastUpdated ? new Date(item.lastUpdated).toLocaleDateString() : "—"}</td>
                   </tr>

@@ -61,6 +61,8 @@ import type {
   MyShopNetworkResponse,
 } from "./types/retailer";
 
+// Shop Admin domain types - imported inline in API methods
+
 // ============================================================================
 // BASE AXIOS CONFIGURATION
 // ============================================================================
@@ -1309,6 +1311,32 @@ export const ShopAdminAPI = {
       shopAdminApi
         .put(`/stock/receipts/${receiptId}/verify`, data)
         .then((r) => r.data),
+
+    // Incoming Shipments Management
+    incomingShipments: {
+      // GET /shop-admin/stock/incoming-shipments
+      getAll: (
+        params: import("./types/shopAdmin").IncomingShipmentsParams = {}
+      ): Promise<import("./types/shopAdmin").IncomingShipmentsListResponse> =>
+        shopAdminApi
+          .get("/stock/incoming-shipments", { params })
+          .then((r) => r.data),
+
+      // GET /shop-admin/stock/incoming-shipments/:id
+      getDetail: (
+        id: number
+      ): Promise<import("./types/shopAdmin").IncomingShipmentDetailResponse> =>
+        shopAdminApi.get(`/stock/incoming-shipments/${id}`).then((r) => r.data),
+
+      // PATCH /shop-admin/stock/incoming-shipments/:id/receive
+      updateStatus: (
+        id: number,
+        data: import("./types/shopAdmin").UpdateShipmentStatusRequest
+      ): Promise<import("./types/shopAdmin").UpdateShipmentStatusResponse> =>
+        shopAdminApi
+          .patch(`/stock/incoming-shipments/${id}/receive`, data)
+          .then((r) => r.data),
+    },
   },
 };
 
