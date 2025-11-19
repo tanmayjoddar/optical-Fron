@@ -34,7 +34,7 @@ export default function LowStockAlerts() {
     try {
       const res = await ShopAdminAPI.reports.getInventoryAlerts();
       console.log("Low Stock Alerts Response:", res);
-      
+
       // Accept multiple response formats
       let list: LowStockItem[] = [];
       if (Array.isArray(res)) {
@@ -54,7 +54,7 @@ export default function LowStockAlerts() {
           }
         }
       }
-      
+
       console.log("Parsed Low Stock Items:", list);
       setAlerts(list);
     } catch (e) {
@@ -66,7 +66,9 @@ export default function LowStockAlerts() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -77,13 +79,11 @@ export default function LowStockAlerts() {
       const category = (a.product?.category || a.category || "").toLowerCase();
       const current = a.currentStock ?? 0;
       const alert = a.alertLevel ?? 0;
-      
+
       // If onlyLowStock is true, filter by stock level; if false, show all
-      const stockOk = !onlyLowStock || (current <= alert);
-      const textOk = q === "" ||
-        name.includes(q) ||
-        sku.includes(q) ||
-        category.includes(q);
+      const stockOk = !onlyLowStock || current <= alert;
+      const textOk =
+        q === "" || name.includes(q) || sku.includes(q) || category.includes(q);
       return stockOk && textOk;
     });
   }, [alerts, query, onlyLowStock]);
@@ -100,21 +100,37 @@ export default function LowStockAlerts() {
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="font-bold text-lg">Low Stock Alerts</h2>
-            <p className="text-sm text-muted-foreground">Products at or below their alert level.</p>
+            <p className="text-sm text-muted-foreground">
+              Products at or below their alert level.
+            </p>
           </div>
           <div className="flex gap-2 items-center">
-            <Input placeholder="Search by name, SKU, category" value={query} onChange={(e) => { setPage(1); setQuery(e.target.value); }} className="w-64" />
-            <Button variant={onlyLowStock ? "default" : "outline"} onClick={() => { setPage(1); setOnlyLowStock(!onlyLowStock); }}>
+            <Input
+              placeholder="Search by name, SKU, category"
+              value={query}
+              onChange={(e) => {
+                setPage(1);
+                setQuery(e.target.value);
+              }}
+              className="w-64"
+            />
+            <Button
+              variant={onlyLowStock ? "default" : "outline"}
+              onClick={() => {
+                setPage(1);
+                setOnlyLowStock(!onlyLowStock);
+              }}
+            >
               {onlyLowStock ? "Showing Low Only" : "Include All"}
             </Button>
-            <Button onClick={() => load()} disabled={loading}>{loading ? "Refreshing..." : "Refresh"}</Button>
+            <Button onClick={() => load()} disabled={loading}>
+              {loading ? "Refreshing..." : "Refresh"}
+            </Button>
           </div>
         </div>
       </Card>
 
-      {error && (
-        <Card className="p-4 mb-4 text-red-600">{error}</Card>
-      )}
+      {error && <Card className="p-4 mb-4 text-red-600">{error}</Card>}
 
       <Card className="p-4">
         <div className="overflow-x-auto">
@@ -132,36 +148,64 @@ export default function LowStockAlerts() {
             </thead>
             <tbody>
               {loading && (
-                <tr><td colSpan={7} className="py-6 text-center text-muted-foreground">Loading...</td></tr>
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="py-6 text-center text-muted-foreground"
+                  >
+                    Loading...
+                  </td>
+                </tr>
               )}
-              {!loading && paginated.map((item: LowStockItem) => {
-                const productId = item.product?.id || item.id || 0;
-                const name = item.product?.name || item.name || "—";
-                const sku = item.product?.sku || item.sku || "—";
-                const category = item.product?.category || item.category || "—";
-                const current = item.currentStock ?? 0;
-                const alert = item.alertLevel ?? 0;
-                const isLow = current <= alert;
-                return (
-                  <tr key={productId} className="border-b">
-                    <td>{name}</td>
-                    <td>{sku}</td>
-                    <td>{category}</td>
-                    <td>{current}</td>
-                    <td>{alert}</td>
-                    <td className={isLow ? "text-amber-600" : "text-green-600"}>{isLow ? "Low" : "OK"}</td>
-                    <td>{item.lastUpdated ? new Date(item.lastUpdated).toLocaleDateString() : "—"}</td>
-                  </tr>
-                );
-              })}
+              {!loading &&
+                paginated.map((item: LowStockItem) => {
+                  const productId = item.product?.id || item.id || 0;
+                  const name = item.product?.name || item.name || "—";
+                  const sku = item.product?.sku || item.sku || "—";
+                  const category =
+                    item.product?.category || item.category || "—";
+                  const current = item.currentStock ?? 0;
+                  const alert = item.alertLevel ?? 0;
+                  const isLow = current <= alert;
+                  return (
+                    <tr key={productId} className="border-b">
+                      <td>{name}</td>
+                      <td>{sku}</td>
+                      <td>{category}</td>
+                      <td>{current}</td>
+                      <td>{alert}</td>
+                      <td
+                        className={isLow ? "text-amber-600" : "text-green-600"}
+                      >
+                        {isLow ? "Low" : "OK"}
+                      </td>
+                      <td>
+                        {item.lastUpdated
+                          ? new Date(item.lastUpdated).toLocaleDateString()
+                          : "—"}
+                      </td>
+                    </tr>
+                  );
+                })}
               {!loading && paginated.length === 0 && (
-                <tr><td colSpan={7} className="py-6 text-center text-muted-foreground">No alerts</td></tr>
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="py-6 text-center text-muted-foreground"
+                  >
+                    No alerts
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
         <div className="mt-4">
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       </Card>
     </div>

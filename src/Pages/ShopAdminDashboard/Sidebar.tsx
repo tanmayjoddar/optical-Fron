@@ -184,7 +184,7 @@ function SidebarContent() {
       try {
         const res = await ShopAdminAPI.reports.getInventoryAlerts();
         console.log("Sidebar Low Stock Response:", res);
-        
+
         // Accept multiple response formats
         let list: unknown[] = [];
         if (Array.isArray(res)) {
@@ -204,7 +204,7 @@ function SidebarContent() {
             }
           }
         }
-        
+
         console.log("Sidebar parsed low stock count:", list.length);
         if (!cancelled) setLowStockCount(list.length || 0);
       } catch (e) {
